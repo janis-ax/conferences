@@ -31,12 +31,14 @@ jobs:
           mkdir -p site
           if git ls-remote --exit-code --heads origin main >/dev/null; then
             git worktree add ../src-main origin/main
-            (cd ../src-main && quarto render)
+            (cd ../src-main && quarto render 2>&1 | tee ../render-main.log)
+            ! grep -q FATAL ../render-main.log
             cp -R ../src-main/_site/. site/
           fi
           if git ls-remote --exit-code --heads origin dev >/dev/null; then
             git worktree add ../src-dev origin/dev
-            (cd ../src-dev && quarto render --profile dev)
+            (cd ../src-dev && quarto render --profile dev 2>&1 | tee ../render-dev.log)
+            ! grep -q FATAL ../render-dev.log
             mkdir -p site/dev
             cp -R ../src-dev/_site/. site/dev/
           fi
