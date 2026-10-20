@@ -24,7 +24,7 @@ format:
 
 Kurz zu mir, dann direkt rein. Die Geschichte heute ist ein echtes Projekt, kein Hochglanz-Demo-Setup.
 
-Wir starten bei der Ausgangslage, klären dann ein paar Grundlagen, damit alle auf demselben Stand sind: Was ist eigentlich ein Modell, was ist Inference. Dann die Frage, die sich jeder zuerst stellen sollte: Passt das Modell überhaupt auf meine Hardware? Danach Betrieb mit vLLM, das Gateway mit LiteLLM und am Ende ein ehrliches Fazit, wann sich das lohnt.
+Wir starten bei der Ausgangslage, klären dann ein paar Grundlagen, damit alle auf demselben Stand sind: Was ist eigentlich ein Modell, was ist Inference. Dann die Frage, die sich jeder zuerst stellen sollte: Passt das Modell überhaupt auf meine Hardware? Danach Betrieb mit vLLM, das Gateway mit LiteLLM und am Ende ein Fazit, wann sich das lohnt.
 
 Kurze Frage ins Publikum: Wer hat schon mal selbst ein Modell gehostet? Und wer nutzt nur Cloud-APIs?
 :::
@@ -304,7 +304,7 @@ Welches Modell passt eigentlich auf meine Karten?
 
 <div class="slide-logos"><img src="logos/qwen.svg" alt="Qwen"><img src="logos/huggingface.svg" alt="Hugging Face"></div>
 
-<p>Ehrlich: Eine große Begründung gibt es nicht. Wir haben <strong>keinen Modelltest</strong> gemacht, sind mit Qwen gestartet und zufrieden.</p>
+<p>Eine große Begründung gibt es nicht. Wir haben <strong>keinen Modelltest</strong> gemacht, sind mit Qwen gestartet und zufrieden.</p>
 
 | Modell | Größe | Lizenz |
 |--------|-------|--------|
@@ -320,7 +320,7 @@ Welches Modell passt eigentlich auf meine Karten?
 ::: notes
 (ca. 2 Min.)
 
-Die ehrliche Antwort auf "Warum Qwen?" ist: Wir haben keinen großen Test gemacht. Wir sind einfach gestartet, und es hat gut funktioniert. Daran sind wir hängen geblieben.
+Warum Qwen? Wir haben keinen großen Test gemacht. Wir sind einfach gestartet, und es hat gut funktioniert. Daran sind wir hängen geblieben.
 
 Es gibt andere Modelle in dieser Klasse. Gemma 4 von Google als dichtes 31B-Modell, Mistral Small 4 mit 119 Milliarden Parametern, aber nur 6,5 Milliarden aktiv, DeepSeek V4.1-Flash und GLM-5.3-Flash aus China, beide unter MIT-Lizenz. Alle mit offenen Gewichten.
 
@@ -349,7 +349,7 @@ Aber schaut mal, wie groß die Modelle sind. Eine H100 NVL hat 94 Gigabyte. Das 
 
 Die Rechnung ist immer dieselbe wie vorhin: Parameter mal 2 Byte.
 
-Die Botschaft: Nicht vom Benchmark blenden lassen. Erst schauen, was auf die eigene Hardware passt.
+Nicht vom Benchmark blenden lassen. Erst schauen, was auf die eigene Hardware passt.
 :::
 
 ## Rechnen statt raten: Gewichte + KV Cache
@@ -752,7 +752,7 @@ Der Regler ist der Output-Anteil. Agenten und Chat sind meist Input-lastig, weil
 
 Zwei Dinge fehlen in der Rechnung. Erstens Cache-Rabatte: Bei agentischer Nutzung wird viel Input aus dem Cache gelesen, bei Flash kostet das nur etwa 0,016 $ pro Million. Die Cloud-Rechnung wäre dann deutlich niedriger. Zweitens unsere eigenen Kosten, die haben wir noch nicht sauber beziffert.
 
-Ehrlich gesagt: Das ist nur die halbe Rechnung. Unser Betrieb läuft noch recht hemdsärmelig, eine saubere Rechnung für Strom, Hardware und Personal haben wir noch nicht. Darum die nächste Folie.
+Das ist nur die halbe Rechnung. Unser Betrieb läuft noch recht hemdsärmelig, eine saubere Rechnung für Strom, Hardware und Personal haben wir noch nicht. Darum die nächste Folie.
 :::
 
 ## Wann lohnt sich das? Keine Pauschalantwort
@@ -767,7 +767,7 @@ Ehrlich gesagt: Das ist nur die halbe Rechnung. Unser Betrieb läuft noch recht 
 ::: notes
 (ca. 2 Min.)
 
-Wann lohnt es sich also? Ich tue mich ehrlich schwer mit einer Pauschalantwort. Das muss man über lange Sicht sehen.
+Wann lohnt es sich also? Ich tue mich schwer mit einer Pauschalantwort. Das muss man über lange Sicht sehen.
 
 Vier Fragen:
 Reichen die Modelle für meine Aufgaben? Nicht für den Benchmark, sondern für meinen Alltag.
@@ -793,7 +793,7 @@ Das klappt, weil nichts das Haus verlässt. Eigene Hardware, eigenes Netz, eigen
 Kurz Pause machen.
 :::
 
-## Ehrlich: die Stolpersteine
+## Die Stolpersteine
 
 - **Model Lifecycle**: Modelle austauschen ist schwerer als gedacht. Aliase helfen, aber Kontextlänge und Co. ändern sich mit
 - **Sizing**: Die Balance zwischen max-model-len und parallelen Anfragen. Die echte Last kommt erst noch
@@ -804,7 +804,7 @@ Kurz Pause machen.
 ::: notes
 (ca. 2 Min.)
 
-Im Abstract habe ich versprochen, ehrlich über Stolpersteine zu reden. Hier die wichtigsten.
+Im Abstract habe ich versprochen, über Stolpersteine zu reden. Hier die wichtigsten.
 
 Das Größte für uns war das Lifecycle-Management von Modellen. Wie tausche ich ein Modell aus, ohne dass die Nutzer etwas merken? Dafür gibt es die Aliase. Aber auch das ist nicht trivial, weil sich zum Beispiel max-model-len ändern kann.
 
