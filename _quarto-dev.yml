@@ -1,0 +1,5 @@
+# Profil "dev": Vorschau ohne Sprechernotizen (quarto render --profile dev)
+project:
+  type: default
+filters:
+  - strip-notes.lua

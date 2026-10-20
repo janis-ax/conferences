@@ -1,0 +1,57 @@
+name: Präsentationen auf GitHub Pages
+
+# Eine Pages-Seite pro Repository. Darum baut jeder Lauf beide Stände:
+#   main -> https://<user>.github.io/<repo>/       (freigegeben, mit Sprechernotizen)
+#   dev  -> https://<user>.github.io/<repo>/dev/   (Vorschau, ohne Sprechernotizen)
+
+on:
+  push:
+    branches: [main, dev]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: quarto-dev/quarto-actions/setup@v2
+      - name: main und dev rendern und zusammenführen
+        run: |
+          mkdir -p site
+          if git ls-remote --exit-code --heads origin main >/dev/null; then
+            git worktree add ../src-main origin/main
+            (cd ../src-main && quarto render)
+            cp -R ../src-main/_site/. site/
+          fi
+          if git ls-remote --exit-code --heads origin dev >/dev/null; then
+            git worktree add ../src-dev origin/dev
+            (cd ../src-dev && quarto render --profile dev)
+            mkdir -p site/dev
+            cp -R ../src-dev/_site/. site/dev/
+          fi
+          # Ohne main bekommt die Wurzel eine Weiterleitung auf dev
+          [ -f site/index.html ] || echo '<meta http-equiv="refresh" content="0; url=dev/">' > site/index.html
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

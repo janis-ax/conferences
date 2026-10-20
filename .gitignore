@@ -1,0 +1,30 @@
+# Sicherheitsnetz: Standardmäßig wird NICHTS versioniert.
+# Veröffentlicht wird nur, was unten ausdrücklich freigegeben ist.
+/*
+
+# Gemeinsame Infrastruktur
+!/.gitignore
+!/.github/
+!/_extensions/
+!/_quarto.yml
+!/index.html
+!/_quarto-dev.yml
+!/strip-notes.lua
+
+# Freigegebene Vorträge: Zeile erst einkommentieren, wenn der Vortrag
+# ausdrücklich freigegeben ist (lokal getestet, keine kritischen Informationen).
+!/01_Mein_Modell_meine_Hardware_meine_Regeln/
+# !/02_MCP_Skills_Prompts_Agents/
+# !/03_MCP_at_Oracle_Cloud/
+
+# Auch in freigegebenen Ordnern nie versionieren
+**/*.md
+**/*.html
+!/index.html
+**/*_files/
+**/.DS_Store
+**/.quarto/
+_site_dev/
+
+/.quarto/
+**/*.quarto_ipynb

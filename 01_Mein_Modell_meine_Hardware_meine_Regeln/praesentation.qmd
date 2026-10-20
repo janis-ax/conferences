@@ -1,0 +1,410 @@
+---
+title: "Mein Modell, meine Hardware, meine Regeln: Open-Source-LLMs souverän betreiben"
+subtitle: "DOAG Konferenz & Ausstellung 2026"
+author: "Janis Ax"
+lang: de
+format:
+  ordix-revealjs:
+    footer: "Mein Modell, meine Hardware, meine Regeln, ORDIX AG, Janis Ax, 17.11.2026"
+    css: assets/praesentation.css
+    include-after-body: assets/animationen.html
+---
+
+## Agenda {.agenda}
+
+- Ausgangslage
+- Grundlagen
+- Modell und Hardware
+- Betrieb mit vLLM
+- Gateway mit LiteLLM
+- Fazit
+
+
+# Ausgangslage
+
+Wie es angefangen hat
+
+## Wo wir herkommen
+
+<div class="slide-logos"><img src="logos/nvidia.svg" alt="NVIDIA"></div>
+
+- Kunde: eine **regulierte Behörde**
+- Die Daten dürfen das Haus nicht verlassen. Cloud-APIs sind damit raus
+- Im Rechenzentrum stehen schon **NVIDIA H100** Karten
+- Die Frage war ganz pragmatisch: Was machen wir jetzt damit?
+
+
+## Der erste Schritt: ein eigener Chatbot
+
+<div class="slide-logos"><img src="logos/mistral.svg" alt="Mistral AI"></div>
+
+- Ziel: Die Kolleginnen und Kollegen sollen mit KI arbeiten, ohne dass Daten rausgehen
+- Die Oberfläche: eine **Eigenentwicklung**
+- Dahinter: ein Mistral-Modell <span class="todo">genauer Modellname</span>
+- Um Model Serving ging es da noch gar nicht. Erst mal sollte es einfach laufen
+
+
+## Heute: LiteLLM ist der AI-Proxy für die ganze Behörde {.hex}
+
+<div class="bignum">4,5 bis 5 Mrd.</div>
+
+<p class="lead">Tokens pro Monat laufen über unser LiteLLM. Und die GPUs sind noch nicht ausgelastet.</p>
+
+
+# Grundlagen
+
+Wie hostet man eigentlich ein Modell?
+
+## Was ist ein Modell?
+
+:::: {.columns}
+
+::: {.column width="48%"}
+- Ein Modell ist erstmal: **Dateien voller Zahlen**
+- Die Zahlen heißen **Gewichte** oder **Parameter**
+- Sie wurden beim Training gelernt und ändern sich danach nicht mehr
+- Rechenbeispiel: 32 Mrd. Parameter × 2 Byte = **64 GB**
+:::
+
+::: {.column width="4%"}
+:::
+
+::: {.column width="48%"}
+<div class="weights"> 0.0132  -0.4410   0.0871   1.2093
+-0.7712   0.0045  -0.3318   0.5521
+ 0.2290  -1.0034   0.6617  -0.0128
+-0.0941   0.3872  -0.2256   0.9013
+ 0.4417  -0.6620   0.0310  -0.1187
+-0.8836   0.1504   0.7742  -0.4059
+ 0.0623  -0.2981   0.5130   0.3376
+-0.5508   0.8814  -0.0472  -0.6693</div>
+:::
+
+::::
+
+
+## Wo kommen die Dateien her? Hugging Face
+
+<div class="slide-logos"><img src="logos/huggingface.svg" alt="Hugging Face"></div>
+
+- Hugging Face ist so etwas wie **GitHub für Modelle**
+- Dort liegen die Gewichte, die Konfiguration und eine Beschreibung (Model Card)
+
+```bash
+hf download Qwen/Qwen3-32B --local-dir /models/qwen3-32b
+```
+
+```text
+config.json                          # Bauplan: Schichten, Köpfe, Kontextlänge
+tokenizer.json                       # Wie Text in Tokens zerlegt wird
+model-00001-of-00017.safetensors     # Die Gewichte, aufgeteilt in viele Dateien
+...
+```
+
+
+## Was sind eigentlich Tokens?
+
+Tokens sind die Währung im AI-Zeitalter: Gezählt, begrenzt und abgerechnet wird in Tokens. Und nein, 1 Token ist nicht 1 Wort.
+
+<div class="anim fragment" data-anim="tokenizer" data-autoplay="false"></div>
+
+<p class="muted" style="font-size:15px">Der <strong>Tokenizer</strong> ist das feste Wörterbuch des Modells: Er zerlegt Text in Stücke, die er kennt, und gibt jedem eine Nummer. Hier echt gerechnet mit dem Tokenizer von gpt-oss (rund 200.000 Einträge). Jedes Modell hat seinen eigenen.</p>
+
+
+## Was ist Inference?
+
+Inference heißt: das Modell benutzen. Text rein, Token für Token raus.
+
+<div class="anim" data-anim="tokens"></div>
+
+
+## Was ist der KV Cache?
+
+Der KV Cache ist das Kurzzeitgedächtnis jeder Anfrage. Was schon gerechnet ist, wird gemerkt statt neu gerechnet.
+
+<div class="anim fragment" data-anim="kvcache" data-autoplay="false"></div>
+
+
+## Die Inference Engine erweckt die Dateien zum Leben
+
+<div class="slide-logos"><img src="logos/vllm.svg" alt="vLLM"></div>
+
+- Lädt die Gewichte in den Speicher der GPU (VRAM)
+- Verwaltet den **KV Cache** im VRAM, für alle Anfragen gleichzeitig
+- Verteilt viele Anfragen gleichzeitig auf die GPU
+- Bietet eine **OpenAI-kompatible API**. Jedes Tool, das mit OpenAI spricht, spricht auch mit uns
+
+
+## Der Trick: viele Anfragen gleichzeitig
+
+<div class="anim" data-anim="batching"></div>
+
+<p class="muted" style="font-size:15px">Continuous Batching können alle großen Engines. vLLM hat es mit PagedAttention bekannt gemacht: KV Cache in kleinen Seiten, kaum Verschnitt.</p>
+
+
+## vLLM ist nicht die einzige Option
+
+| Engine | Typisch für |
+|--------|-------------|
+| **vLLM** | GPU-Server mit vielen parallelen Nutzern, OpenAI-kompatible API |
+| **SGLang** | Ähnliche Liga wie vLLM, stark bei vielen Anfragen mit gleichem Anfang |
+| **TensorRT-LLM / NVIDIA NIM** | Maximale Leistung auf NVIDIA, dafür mehr Aufwand bzw. Lizenz |
+| **Red Hat AI Inference Server** | vLLM als unterstütztes Produkt, passt zu OpenShift |
+| **llama.cpp / Ollama** | Laptop, CPU, kleine GPUs. Super zum Ausprobieren |
+
+
+# Modell und Hardware
+
+Welches Modell passt eigentlich auf meine Karten?
+
+## Die Benchmark-Falle
+
+<div class="gb-row"><span class="gb-label">Eine H100</span><div class="gb-bar gpu" style="width:48px"></div><span class="gb-value">80 GB</span></div>
+<div class="gb-row fragment"><span class="gb-label">Qwen3-32B (BF16)</span><div class="gb-bar" style="width:38px"></div><span class="gb-value">64 GB</span></div>
+<div class="gb-row fragment"><span class="gb-label">Qwen3-235B (BF16)</span><div class="gb-bar" style="width:282px"></div><span class="gb-value">470 GB</span></div>
+<div class="gb-row fragment"><span class="gb-label">Qwen3-Coder-480B (BF16)</span><div class="gb-bar" style="width:576px"></div><span class="gb-value">960 GB ≈ 1 TB</span></div>
+
+<p class="fragment" style="margin-top:28px">Die tollen Benchmarks im Netz kommen oft von genau diesen Riesen. Für dich zählt, was auf <strong>deine</strong> Karten passt.</p>
+
+
+## Rechnen statt raten: Gewichte + KV Cache
+
+<div class="anim vram" data-anim="vram"></div>
+
+
+## Wo finde ich heraus, was auf meine Hardware passt?
+
+<div class="slide-logos"><img src="logos/vllm.svg" alt="vLLM"><img src="logos/huggingface.svg" alt="Hugging Face"></div>
+
+- **vLLM Recipes**: pro Modell, wie viel VRAM es braucht und wie man es startet
+  - Beispiel: [recipes.vllm.ai/Qwen/Qwen3.8-Flash-Next](https://recipes.vllm.ai/Qwen/Qwen3.8-Flash-Next)
+- **Hugging Face**, Reiter "Files": Größe der safetensors-Dateien = Größe der Gewichte
+- **config.json**: Schichten und KV-Köpfe, daraus ergibt sich der KV Cache
+- Faustregel: Parameter in Mrd. × Byte pro Gewicht = GB
+
+
+## Tuning und Sizing: die wichtigsten Stellschrauben
+
+:::: {.columns}
+
+::: {.column width="50%"}
+```bash
+vllm serve Qwen/Qwen3-32B \
+  --max-model-len 32768 \
+  --gpu-memory-utilization 0.90 \
+  --max-num-seqs 64 \
+  --tensor-parallel-size 2 \
+  --kv-cache-dtype fp8
+```
+:::
+
+::: {.column width="50%"}
+- `max-model-len`: Kontext begrenzen spart KV Cache
+- `gpu-memory-utilization`: wie viel VRAM vLLM nehmen darf
+- `max-num-seqs`: wie viele Anfragen parallel laufen
+- `tensor-parallel-size`: Modell auf mehrere Karten verteilen
+- `kv-cache-dtype fp8`: KV Cache halbieren
+:::
+
+::::
+
+
+## Der Auslagerungs-Trick beim Flash-Modell
+
+Rechnen braucht VRAM, Nachschlagen nicht. Darum liegen die N-Gramm-Gewichte im normalen Heap.
+
+<div class="anim" data-anim="offload"></div>
+
+
+## Mehr als Text: Vision und Thinking
+
+<div class="slide-logos"><img src="logos/qwen.svg" alt="Qwen"><img src="logos/mistral.svg" alt="Mistral AI"></div>
+
+- Am Ende laufen bei uns **Mistral und Qwen** <span class="todo">Modellnamen</span>
+- **Vision**: Bilder und Scans als Eingabe <span class="todo">Beispiel aus dem Projekt</span>
+- **Thinking-Varianten**: Das Modell denkt erst nach, dann antwortet es. Kostet mehr Tokens, hilft bei schweren Fragen
+- Mehrere Modelle heißt: Spätestens jetzt brauchst du **eine zentrale Tür**
+
+
+# Betrieb mit vLLM
+
+Was läuft da eigentlich konkret in OpenShift?
+
+## Was wir konkret in OpenShift machen
+
+<div class="slide-logos"><img src="logos/openshift.svg" alt="Red Hat OpenShift"><img src="logos/nvidia.svg" alt="NVIDIA"></div>
+
+:::: {.columns}
+
+::: {.column width="46%"}
+- Der **NVIDIA GPU Operator** macht die H100 im Cluster nutzbar
+- **Pro Modell ein Deployment** mit vLLM
+- Die Modelldateien liegen auf einem **Volume**, nicht im Container
+- Ein **Service** pro Modell, dahinter hängt das Gateway
+:::
+
+::: {.column width="4%"}
+:::
+
+::: {.column width="50%"}
+```yaml
+containers:
+  - name: vllm
+    image: vllm/vllm-openai
+    args:
+      - --model=/models/qwen3-32b
+      - --served-model-name=qwen
+      - --max-model-len=32768
+    resources:
+      limits:
+        nvidia.com/gpu: 2
+    volumeMounts:
+      - name: models
+        mountPath: /models
+```
+:::
+
+::::
+
+
+# Gateway mit LiteLLM
+
+Eine Tür für alle Modelle
+
+## Warum ein Gateway?
+
+<div class="anim" data-anim="gateway"></div>
+
+
+## LiteLLM: Konfiguration statt Code
+
+<div class="slide-logos"><img src="logos/litellm.svg" alt="LiteLLM"><img src="logos/langfuse.svg" alt="Langfuse"></div>
+
+:::: {.columns}
+
+::: {.column width="55%"}
+```yaml
+model_list:
+  - model_name: mistral
+    litellm_params:
+      model: hosted_vllm/mistral
+      api_base: http://vllm-mistral:8000/v1
+  - model_name: qwen
+    litellm_params:
+      model: hosted_vllm/qwen
+      api_base: http://vllm-qwen:8000/v1
+
+guardrails:
+  - guardrail_name: eingabe-pruefen
+    litellm_params:
+      guardrail: presidio   # Beispiel
+      mode: pre_call
+
+litellm_settings:
+  success_callback: ["langfuse"]
+```
+:::
+
+::: {.column width="45%"}
+- Ein Eintrag pro Modell, mehr ist es nicht
+- **API Keys** pro Team, mit Budget und erlaubten Modellen
+- **Guardrails** vor dem Aufruf
+- **Tool Policies**: wer welchen MCP-Server nutzen darf
+- **Langfuse** bekommt jeden Aufruf als Trace
+:::
+
+::::
+
+
+## Für die Nutzer: einfach die OpenAI-API
+
+```python
+from openai import OpenAI
+
+client = OpenAI(
+    base_url="https://llm.intern.example/v1",
+    api_key="sk-team-a-...",
+)
+
+antwort = client.chat.completions.create(
+    model="qwen",
+    messages=[{"role": "user", "content": "Fasse diesen Bescheid zusammen: ..."}],
+)
+```
+
+Jedes Tool, das mit OpenAI spricht, spricht auch mit unserem Gateway.
+
+
+## Was am Ende da ist
+
+<div class="stack">
+<div class="stack-main">
+<div class="layer clients fragment" data-fragment-index="5"><b>Nutzer</b> Chat · IDE · Agents mit MCP</div>
+<div class="layer gateway fragment" data-fragment-index="3"><img class="logo" src="logos/litellm.svg" alt="LiteLLM"><span>Zentraler Proxy · API Keys · Guardrails · Tool Policies</span></div>
+<div class="layer fragment" data-fragment-index="2"><img class="logo" src="logos/vllm.svg" alt="vLLM"><span>Ein Deployment pro Modell: Mistral, Qwen, ...</span></div>
+<div class="layer base fragment" data-fragment-index="1"><img class="logo" src="logos/openshift.svg" alt="OpenShift"><img class="logo" src="logos/nvidia.svg" alt="NVIDIA"><span>OpenShift mit H100</span></div>
+</div>
+<div class="stack-side fragment" data-fragment-index="4"><img class="logo" src="logos/langfuse.svg" alt="Langfuse"><span>Tracing: wer, was, wie lange, wie viele Tokens</span></div>
+</div>
+
+
+# Fazit
+
+Wann lohnt sich der eigene Betrieb?
+
+## Was hätte das in der Cloud gekostet?
+
+<div class="slide-logos"><img src="logos/openrouter.svg" alt="OpenRouter"></div>
+
+<div class="anim kosten" data-anim="kosten"></div>
+
+<p class="muted" style="font-size:15px">Listenpreise bei OpenRouter, abgefragt am 20.10.2026 bei Preis-Trackern. Vor dem Vortrag live prüfen. Ohne Cache-Rabatt, ohne Hardware, Strom und Personal.</p>
+
+
+## Wann lohnt sich das? Keine Pauschalantwort
+
+<div class="grid2">
+<div class="ordix-card"><h3>Reichen die Modelle?</h3><p>Für die eigenen Aufgaben, nicht für den Benchmark</p></div>
+<div class="ordix-card"><h3>Was kostet der Betrieb?</h3><p>Strom, Updates, Monitoring, Menschen</p></div>
+<div class="ordix-card"><h3>Was kostet die Anschaffung?</h3><p>Hardware über mehrere Jahre gerechnet</p></div>
+<div class="ordix-card accent"><h3>Was ist uns Datenschutz wert?</h3><p>Steht in keiner Tokenrechnung</p></div>
+</div>
+
+
+## Datenschutz {.hex}
+
+<div class="bigtext">Keine Datenschutzbedenken.<br><span class="orange">Alles darf rein.</span></div>
+
+<p class="lead">Weil nichts das Haus verlässt: eigene Hardware, eigenes Netz, eigene Regeln.</p>
+
+
+## Ehrlich: die Stolpersteine
+
+- **Benchmarks sind nicht deine Hardware.** Erst rechnen, dann auswählen
+- **Der KV Cache frisst den Speicher**, nicht nur die Gewichte
+- **Ein Modell ist schnell gestartet, der Betrieb macht die Arbeit**
+- **Governance kommt schneller als gedacht**: Keys, Guardrails, wer darf welche Tools
+- <span class="todo">weitere Stolpersteine aus dem Projekt</span>
+
+
+## Zum Mitnehmen
+
+1. Ein Modell sind Dateien. **Die Arbeit steckt im Betrieb**
+2. **Erst rechnen, dann kaufen**: Gewichte + KV Cache
+3. **vLLM** für die Modelle, **LiteLLM** als einzige Tür davor
+4. **Keys, Guardrails und Tracing** von Anfang an
+5. **Datenschutz**: Bei uns darf alles rein
+
+
+## Wie kommt ihr zu diesem Vortrag?
+
+<div class="slide-logos"><img src="logos/github.svg" alt="GitHub"></div>
+
+<div class="bigtext" style="font-size:40px; margin-top:30px">Folien, Animationen und Sprechernotizen zum Nachlesen und Ausprobieren</div>
+
+<p class="lead">janis-ax.github.io/conferences/01_Mein_Modell_meine_Hardware_meine_Regeln/praesentation.html</p>
+
+<p class="muted" style="font-size:18px">Startseite mit allen Vorträgen: janis-ax.github.io/conferences<br>Die Animationen laufen im Browser, ohne Installation. Mit der Taste S öffnet sich die Referentenansicht mit den Notizen.</p>
+
+
+## Vielen Dank für Ihre Aufmerksamkeit {.closing}

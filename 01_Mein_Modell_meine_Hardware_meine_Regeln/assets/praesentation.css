@@ -1,0 +1,133 @@
+/* Ergänzungen für Vortrag 1. Das Grundlayout kommt aus _extensions/ordix. */
+
+/* ===== Platzhalter für Inhalte, die noch fehlen ===== */
+.reveal .todo {
+  display: inline-block;
+  border: 1.5px dashed #FF6800;
+  color: #D84400;
+  padding: 0 8px;
+  font-size: 0.8em;
+}
+
+/* ===== Logos oben rechts unter dem ORDIX Logo ===== */
+.reveal .slides section.slide > .slide-logos {
+  position: absolute;
+  right: 62px;
+  top: 112px;
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  z-index: 1;
+}
+.reveal .slide-logos img { height: 40px; width: auto; margin: 0; }
+.reveal img.logo { height: 34px; width: auto; margin: 0; vertical-align: middle; }
+
+/* ===== Große Zahl und Kernaussage ===== */
+.reveal .bignum { font-size: 120px; font-weight: 700; color: #FF6800; line-height: 1; margin: 40px 0 18px 0; }
+.reveal .bigtext { font-size: 54px; font-weight: 700; line-height: 1.1; margin: 50px 0 24px 0; max-width: 950px; }
+.reveal .lead { font-size: 26px; max-width: 900px; }
+
+/* ===== Gewichte als Zahlenwand ===== */
+.reveal .weights {
+  font-family: "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+  font-size: 17px;
+  line-height: 1.5;
+  color: #5B6B7F;
+  background: #F4F6F8;
+  padding: 16px 20px;
+  white-space: pre;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, #000 60%, transparent);
+  mask-image: linear-gradient(to bottom, #000 60%, transparent);
+}
+
+/* ===== Benchmark-Falle: Speicherbalken ===== */
+.reveal .gb-row { display: flex; align-items: center; gap: 14px; margin: 14px 0; font-size: 20px; }
+.reveal .gb-label { width: 260px; flex: none; }
+.reveal .gb-bar { height: 34px; background: #13253C; flex: none; }
+.reveal .gb-bar.gpu { background: #FF6800; }
+.reveal .gb-value { font-weight: 700; white-space: nowrap; }
+
+/* ===== Karten im Raster ===== */
+.reveal .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+.reveal .grid2 .ordix-card { font-size: 21px; }
+.reveal .grid2 .ordix-card h3 { font-size: 23px; margin: 0 0 6px 0; color: #13253C; text-transform: none; }
+.reveal .grid2 .ordix-card p { margin: 0; font-size: 20px; }
+.reveal .grid2 .ordix-card.accent { background: #FFF3EB; }
+
+/* ===== Tool-Übersicht als Schichten ===== */
+.reveal .stack { display: flex; gap: 22px; align-items: stretch; }
+.reveal .stack-main { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.reveal .layer {
+  display: flex; align-items: center; gap: 16px;
+  border: 1.5px solid #13253C; padding: 10px 18px; font-size: 20px; background: #fff;
+}
+.reveal .layer b { min-width: 170px; }
+.reveal .layer.clients { border-style: dashed; color: #5B6B7F; }
+.reveal .layer.gateway { border-color: #FF6800; background: #FFF3EB; }
+.reveal .layer.base { background: #DCEEF4; }
+.reveal .stack-side {
+  width: 260px; display: flex; flex-direction: column; justify-content: center; gap: 10px;
+  border: 1.5px solid #13253C; padding: 14px 18px; font-size: 19px;
+}
+
+/* ===== Animationen ===== */
+.reveal .anim { width: 1100px; }
+.reveal .anim-svg { display: block; overflow: visible; }
+.reveal .anim-svg text { font-family: "Open Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+.reveal .anim-controls {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
+  margin-top: 8px; font-size: 16px; color: #13253C;
+}
+.reveal .anim-controls label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.reveal .anim-controls input[type=range] { width: 140px; }
+.reveal .anim-controls input[type=checkbox] { accent-color: #FF6800; width: 18px; height: 18px; }
+.reveal .anim-label { font-weight: 700; margin-left: 6px; }
+.reveal .ordix-btn.small { font-size: 15px; padding: 5px 12px; }
+.reveal .ordix-btn.ghost.active { background: #13253C; color: #fff; }
+
+/* VRAM-Rechner */
+.reveal .vram-bar { position: relative; width: 1100px; height: 70px; background: #F4F6F8; margin-top: 6px; }
+.reveal .vram-gpu {
+  position: absolute; top: 0; height: 70px; box-sizing: border-box;
+  border-right: 2px dashed #AEC3E0; font-size: 12px; color: #5B6B7F; padding: 1px 6px;
+}
+.reveal .vram-seg { position: absolute; top: 20px; height: 50px; transition: left .5s ease, width .5s ease; }
+.reveal .vram-seg.w { background: #13253C; }
+.reveal .vram-seg.kv { background: #FF6800; }
+.reveal .vram-seg.buf { background: #AEC3E0; }
+.reveal .vram-over {
+  position: absolute; top: 0; height: 70px; box-sizing: border-box; z-index: 2;
+  border: 2px solid #C62828;
+  background: repeating-linear-gradient(45deg, rgba(198, 40, 40, .25) 0 8px, transparent 8px 16px);
+  transition: left .5s ease, width .5s ease;
+}
+.reveal .vram-limit { position: absolute; top: -6px; height: 82px; border-left: 3px solid #13253C; z-index: 3; transition: left .5s ease; }
+.reveal .vram-legend { font-size: 15px; color: #5B6B7F; margin: 8px 0 0 0; }
+.reveal .vram-legend .k { display: inline-block; width: 14px; height: 14px; margin: 0 6px -2px 14px; }
+.reveal .vram-legend .k:first-child { margin-left: 0; }
+.reveal .vram-legend .k.w { background: #13253C; }
+.reveal .vram-legend .k.kv { background: #FF6800; }
+.reveal .vram-legend .k.buf { background: #AEC3E0; }
+.reveal .vram-legend .k.lim { width: 3px; background: #13253C; }
+.reveal .vram-verdict { font-size: 24px; font-weight: 700; margin: 10px 0 2px 0; }
+.reveal .vram-verdict.ok { color: #2E7D4F; }
+.reveal .vram-verdict.bad { color: #C62828; }
+.reveal .vram-calc { font-size: 16px; color: #5B6B7F; margin-bottom: 6px; }
+
+/* Kostenvergleich */
+.reveal .kosten-out { margin: 14px 0 12px 0; }
+.reveal .kosten-row { display: flex; align-items: center; gap: 18px; margin: 14px 0; font-size: 22px; }
+.reveal .kosten-name { width: 200px; flex: none; font-weight: 700; }
+.reveal .kosten-bar { display: flex; width: 560px; height: 36px; background: #F4F6F8; flex: none; }
+.reveal .kosten-bar i { display: block; height: 100%; transition: width .4s ease; }
+.reveal .kosten-bar i.in { background: #13253C; }
+.reveal .kosten-bar i.out { background: #FF6800; }
+.reveal .kosten-val { font-weight: 700; white-space: nowrap; }
+.reveal .kosten-row.own { margin-top: 22px; }
+.reveal .kosten-row.own .kosten-bar { background: transparent; border: 1.5px dashed #FF6800; }
+.reveal .kosten-cap { font-size: 15px; color: #5B6B7F; margin-top: 8px; }
+.reveal .kosten-cap .k { display: inline-block; width: 14px; height: 14px; margin: 0 6px -2px 0; }
+.reveal .kosten-cap .k.in { background: #13253C; }
+.reveal .kosten-cap .k.out { background: #FF6800; margin-left: 14px; }
+.reveal .kosten-note { font-size: 15px; color: #5B6B7F; margin-top: 4px; }
