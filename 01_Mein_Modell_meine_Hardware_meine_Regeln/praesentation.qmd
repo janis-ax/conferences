@@ -19,6 +19,15 @@ format:
 - Gateway mit LiteLLM
 - Fazit
 
+::: notes
+(ca. 1 Min.)
+
+Kurz zu mir, dann direkt rein. Die Geschichte heute ist ein echtes Projekt, kein Hochglanz-Demo-Setup.
+
+Wir starten bei der Ausgangslage, klären dann ein paar Grundlagen, damit alle auf demselben Stand sind: Was ist eigentlich ein Modell, was ist Inference. Dann die Frage, die sich jeder zuerst stellen sollte: Passt das Modell überhaupt auf meine Hardware? Danach Betrieb mit vLLM, das Gateway mit LiteLLM und am Ende ein ehrliches Fazit, wann sich das lohnt.
+
+Kurze Frage ins Publikum: Wer hat schon mal selbst ein Modell gehostet? Und wer nutzt nur Cloud-APIs?
+:::
 
 # Ausgangslage
 
@@ -30,9 +39,18 @@ Wie es angefangen hat
 
 - Kunde: eine **regulierte Behörde**
 - Die Daten dürfen das Haus nicht verlassen. Cloud-APIs sind damit raus
-- Im Rechenzentrum stehen schon **NVIDIA H100** Karten
+- Im Rechenzentrum stehen schon **NVIDIA H100 NVL** Karten. Wir nutzen davon nur **zwei**
 - Die Frage war ganz pragmatisch: Was machen wir jetzt damit?
 
+::: notes
+(ca. 2 Min.)
+
+Die Ausgangslage ist wahrscheinlich für viele hier bekannt. Regulierte Behörde, sensible Daten. ChatGPT oder irgendeine Cloud-API einfach anbinden geht nicht.
+
+Der Vorteil bei uns: Die Hardware war schon da. H100-Karten standen im Rechenzentrum. Wir mussten also nicht erst ein Beschaffungsprojekt starten, sondern konnten direkt loslegen.
+
+Und wir brauchen davon gar nicht viel: Für das große Modell, das ich gleich zeige, nutzen wir nur zwei H100 NVL. Das ist eine Karte mit 94 Gigabyte Speicher.
+:::
 
 ## Der erste Schritt: ein eigener Chatbot
 
@@ -43,6 +61,17 @@ Wie es angefangen hat
 - Dahinter: ein Mistral-Modell <span class="todo">genauer Modellname</span>
 - Um Model Serving ging es da noch gar nicht. Erst mal sollte es einfach laufen
 
+::: notes
+(ca. 2 Min.)
+
+Am Anfang ging es gar nicht um Model Serving oder Architektur. Die Frage war: Können die Leute hier mit KI arbeiten, ohne dass Daten rausgehen?
+
+Also haben wir einen Chatbot gebaut. Die Oberfläche ist eine Eigenentwicklung, dahinter lief ein Mistral-Modell.
+
+Gateway, Keys, Guardrails, mehrere Modelle, das kam alles erst später, als klar war: Das wird genutzt.
+
+TODO: Modellname ergänzen. Und worauf lief Mistral am Anfang?
+:::
 
 ## Heute: LiteLLM ist der AI-Proxy für die ganze Behörde {.hex}
 
@@ -50,6 +79,15 @@ Wie es angefangen hat
 
 <p class="lead">Tokens pro Monat laufen über unser LiteLLM. Und die GPUs sind noch nicht ausgelastet.</p>
 
+::: notes
+(ca. 1 Min.)
+
+Kurzer Sprung nach vorne, damit ihr wisst, wo die Geschichte hinführt. Aus dem Chatbot ist mehr geworden. Heute haben wir LiteLLM als zentralen AI-Proxy für die ganze Behörde. Was LiteLLM genau ist, zeige ich später.
+
+Darüber laufen 4,5 bis 5 Milliarden Tokens im Monat. Und die GPUs sind noch nicht ausgelastet, da ist noch Luft nach oben.
+
+Was ein Token eigentlich ist, klären wir gleich. Am Ende schauen wir, was dieser Verbrauch in der Cloud gekostet hätte.
+:::
 
 # Grundlagen
 
@@ -63,7 +101,7 @@ Wie hostet man eigentlich ein Modell?
 - Ein Modell ist erstmal: **Dateien voller Zahlen**
 - Die Zahlen heißen **Gewichte** oder **Parameter**
 - Sie wurden beim Training gelernt und ändern sich danach nicht mehr
-- Rechenbeispiel: 32 Mrd. Parameter × 2 Byte = **64 GB**
+- Rechenbeispiel: 27 Mrd. Parameter × 2 Byte = **54 GB**
 :::
 
 ::: {.column width="4%"}
@@ -82,6 +120,15 @@ Wie hostet man eigentlich ein Modell?
 
 ::::
 
+::: notes
+(ca. 2 Min.)
+
+Bevor wir über Betrieb reden: Was ist eigentlich ein Modell?
+
+Im Kern ist ein Modell eine Sammlung von Dateien voller Zahlen. Milliarden davon. Die nennt man Gewichte oder Parameter. Beim Training werden die gelernt, danach sind sie fest.
+
+Und die Größe kann man direkt ausrechnen: Qwen3.8-27B hat 27 Milliarden Parameter, jede Zahl braucht 2 Byte, sind 54 Gigabyte. Diese Rechnung brauchen wir gleich noch, wenn es um die Hardware geht.
+:::
 
 ## Wo kommen die Dateien her? Hugging Face
 
@@ -91,16 +138,25 @@ Wie hostet man eigentlich ein Modell?
 - Dort liegen die Gewichte, die Konfiguration und eine Beschreibung (Model Card)
 
 ```bash
-hf download Qwen/Qwen3-32B --local-dir /models/qwen3-32b
+hf download Qwen/Qwen3.8-27B --local-dir /models/qwen3.8-27b
 ```
 
 ```text
 config.json                          # Bauplan: Schichten, Köpfe, Kontextlänge
 tokenizer.json                       # Wie Text in Tokens zerlegt wird
-model-00001-of-00017.safetensors     # Die Gewichte, aufgeteilt in viele Dateien
+model-00001-of-0000N.safetensors     # Die Gewichte, aufgeteilt in viele Dateien
 ...
 ```
 
+::: notes
+(ca. 2 Min.)
+
+Wo kriege ich die Dateien her? In der Regel von Hugging Face. Stellt euch das vor wie GitHub, nur für Modelle.
+
+Ein Befehl, und die Dateien liegen lokal. Spannend sind drei Sachen: die config.json, das ist der Bauplan. Der Tokenizer, der Text in Tokens zerlegt. Und die safetensors-Dateien, das sind die eigentlichen Gewichte.
+
+In einer Behörde lädt man das natürlich nicht einfach aus dem Internet in die Produktion. TODO: kurz erzählen, wie die Modelle bei uns ins Haus kommen.
+:::
 
 ## Was sind eigentlich Tokens?
 
@@ -110,6 +166,30 @@ Tokens sind die Währung im AI-Zeitalter: Gezählt, begrenzt und abgerechnet wir
 
 <p class="muted" style="font-size:15px">Der <strong>Tokenizer</strong> ist das feste Wörterbuch des Modells: Er zerlegt Text in Stücke, die er kennt, und gibt jedem eine Nummer. Hier echt gerechnet mit dem Tokenizer von gpt-oss (rund 200.000 Einträge). Jedes Modell hat seinen eigenen.</p>
 
+::: notes
+(ca. 2 Min.)
+
+Ich habe jetzt schon ein paarmal Tokens gesagt. Was ist das eigentlich?
+
+Tokens sind die Währung im AI-Zeitalter. Alles wird in Tokens gezählt: Kontextlänge, Limits, und bei der Cloud die Rechnung.
+
+Man hört oft: Ein Token ist ein Wort. Stimmt aber nicht. Der Tokenizer zerlegt Text in Stücke, die er kennt. Häufige Wörter sind ein Token, seltene werden zerlegt. Und jedes Stück ist für das Modell einfach eine Zahl, die steht unter den Kacheln.
+
+Die Animation startet mit dem nächsten Klick (Pfeiltaste oder Presenter) oder über den Button. Dann die Beispiele durchklicken:
+- Bescheid: 5 Wörter, 8 Tokens. "Bescheid" allein sind schon zwei.
+- Englisch: kürzer, aber auch hier nicht 1 zu 1.
+- Datenschutzgrundverordnung: ein Wort, 5 Tokens.
+- Amtsdeutsch: 9 Wörter, 15 Tokens. Deutsche Behördensprache ist teuer.
+- Datum: Zahlen werden ziemlich zerstückelt.
+
+Was ist der Tokenizer genau? Das ist das feste Wörterbuch des Modells. Bei gpt-oss hat es rund 200.000 Einträge: ganze Wörter, Wortteile, einzelne Buchstaben, Zahlen, Satzzeichen. Der Tokenizer zerlegt den Text in Stücke aus diesem Wörterbuch, und jedes Stück bekommt seine Nummer. Mit Text arbeitet das Modell nie, nur mit diesen Nummern.
+
+Woher kommt das Wörterbuch? Es wird einmal vor dem Training aus riesigen Textmengen gebaut. Das Verfahren heißt Byte Pair Encoding: Man startet mit einzelnen Zeichen und fasst immer wieder die häufigsten Paare zu einem neuen Eintrag zusammen. Was oft vorkommt, wird ein ganzes Token, zum Beispiel " die" oder " zusammen". Was selten ist, bleibt in Stücken. Darum ist Englisch günstig und deutsches Amtsdeutsch teuer: Die Trainingstexte sind überwiegend Englisch.
+
+Das ist übrigens die tokenizer.json, die wir vorhin bei Hugging Face gesehen haben.
+
+Die Kacheln sind echt, berechnet mit dem Tokenizer von gpt-oss. Jedes Modell hat seinen eigenen Tokenizer, die Zahlen weichen also je nach Modell etwas ab.
+:::
 
 ## Was ist Inference?
 
@@ -117,6 +197,15 @@ Inference heißt: das Modell benutzen. Text rein, Token für Token raus.
 
 <div class="anim" data-anim="tokens"></div>
 
+::: notes
+(ca. 2 Min.)
+
+Die Dateien allein machen noch nichts. Damit sie "leben", muss jemand sie ausführen. Das nennt man Inference.
+
+Schaut euch die Animation an: Der Prompt geht komplett durch das Modell, raus kommt genau ein Token. Das wird hinten angehängt, und dann geht alles nochmal durch. Und nochmal. Und nochmal.
+
+Jedes einzelne Token ist ein kompletter Durchlauf. Darum ist Inference vor allem Rechenzeit auf der GPU, und darum kommt es darauf an, wie geschickt die Software das organisiert.
+:::
 
 ## Was ist der KV Cache?
 
@@ -124,6 +213,21 @@ Der KV Cache ist das Kurzzeitgedächtnis jeder Anfrage. Was schon gerechnet ist,
 
 <div class="anim fragment" data-anim="kvcache" data-autoplay="false"></div>
 
+::: notes
+(ca. 2 Min.)
+
+Erinnert euch an die Inference-Animation: Für jedes neue Token geht der komplette Kontext durch das Modell. Das wäre ziemlich verschwenderisch, denn für die alten Tokens kommt jedes Mal dasselbe raus.
+
+Darum gibt es den KV Cache. K und V stehen für Key und Value. Das sind Zwischenergebnisse, die das Modell pro Token in jeder Schicht berechnet. Die werden einmal gerechnet und dann gemerkt. Beim nächsten Schritt wird nur das neue Token gerechnet, der Rest kommt aus dem Merkzettel.
+
+Die Animation startet mit dem nächsten Klick. Erst "Ohne KV Cache" zeigen, dann umschalten. Unten der Zähler: Ohne Cache wächst die Rechenarbeit bei jedem Schritt, mit Cache kommt pro Schritt genau eins dazu.
+
+Und jetzt der Haken, der uns gleich bei der Hardware wieder begegnet: Der Merkzettel liegt im VRAM. Pro Token bei einem kleinen Modell etwa 0,13 MB. Klingt wenig, aber bei 32.000 Tokens Kontext sind das schon rund 4 GB, und zwar pro Anfrage. Bei vielen parallelen Nutzern ist der KV Cache oft größer als das Modell selbst.
+
+Die 0,13 MB pro Token sind gerechnet aus der config.json von Mistral 7B: 2 × 32 Schichten × 8 KV-Köpfe × 128 × 2 Byte.
+
+Die neuen Qwen3.8-Modelle sind hybrid gebaut: Nur jede vierte Schicht ist eine klassische Attention-Schicht mit wachsendem KV Cache, die anderen drei sind Gated DeltaNet mit festem Zustand. Aus der config.json: Beim Qwen3.8-27B sind das 16 von 64 Schichten mit 4 KV-Köpfen und Kopfgröße 256, also 2 × 16 × 4 × 256 × 2 Byte, rund 0,066 MB pro Token. Beim Flash-Next 12 von 48 Schichten mit 2 KV-Köpfen, rund 0,025 MB pro Token. Das ist ein Bruchteil von dem, was das Mistral-7B-Beispiel braucht.
+:::
 
 ## Die Inference Engine erweckt die Dateien zum Leben
 
@@ -134,6 +238,15 @@ Der KV Cache ist das Kurzzeitgedächtnis jeder Anfrage. Was schon gerechnet ist,
 - Verteilt viele Anfragen gleichzeitig auf die GPU
 - Bietet eine **OpenAI-kompatible API**. Jedes Tool, das mit OpenAI spricht, spricht auch mit uns
 
+::: notes
+(ca. 1 Min.)
+
+Die Software, die das macht, heißt Inference Engine. Bei uns ist das vLLM.
+
+Vier Aufgaben: Gewichte in den GPU-Speicher laden. Den KV Cache verwalten, den wir gerade gesehen haben, und zwar für alle laufenden Anfragen gleichzeitig. Viele Anfragen gleichzeitig verarbeiten. Und nach außen eine API anbieten, die aussieht wie OpenAI.
+
+Der letzte Punkt spart viel Arbeit: Alles, was mit OpenAI reden kann, kann auch mit unserem Server reden.
+:::
 
 ## Der Trick: viele Anfragen gleichzeitig
 
@@ -141,6 +254,21 @@ Der KV Cache ist das Kurzzeitgedächtnis jeder Anfrage. Was schon gerechnet ist,
 
 <p class="muted" style="font-size:15px">Continuous Batching können alle großen Engines. vLLM hat es mit PagedAttention bekannt gemacht: KV Cache in kleinen Seiten, kaum Verschnitt.</p>
 
+::: notes
+(ca. 2 Min.)
+
+Was macht eine gute Inference Engine aus? Das zeige ich am besten.
+
+Links kommen Anfragen rein. Erst mal im Modus "Nacheinander": Die GPU arbeitet eine Anfrage ab, dann die nächste. Schaut auf die Warteschlange. Die wächst und wächst.
+
+Jetzt auf "Continuous Batching" umschalten. Die GPU nimmt viele Anfragen gleichzeitig, jede bekommt pro Schritt ein Token. Ein einzelner Schritt wird ein kleines bisschen langsamer, aber der Durchsatz geht durch die Decke, und die Warteschlange ist weg.
+
+Wichtig: Das kann nicht nur vLLM. Continuous Batching beherrschen heute alle ernsthaften Engines, also SGLang, TensorRT-LLM und auch der Server von llama.cpp. Die Idee kommt ursprünglich aus dem Orca-Paper. Was vLLM bekannt gemacht hat, ist PagedAttention: Der KV Cache wird in kleinen Seiten verwaltet, wie Speicher im Betriebssystem. Dadurch gibt es kaum Verschnitt, und es passen mehr Anfragen gleichzeitig auf die Karte.
+
+Zum Ausprobieren: Den Regler für Anfragen pro Sekunde hochziehen. Irgendwann kommt auch Batching an die Grenze, dann braucht man mehr Hardware.
+
+Hinweis: Die Zahlen in der Animation sind Beispielwerte, keine Messung aus dem Projekt.
+:::
 
 ## vLLM ist nicht die einzige Option
 
@@ -152,25 +280,97 @@ Der KV Cache ist das Kurzzeitgedächtnis jeder Anfrage. Was schon gerechnet ist,
 | **Red Hat AI Inference Server** | vLLM als unterstütztes Produkt, passt zu OpenShift |
 | **llama.cpp / Ollama** | Laptop, CPU, kleine GPUs. Super zum Ausprobieren |
 
+::: notes
+(ca. 2 Min.)
+
+vLLM ist nicht die einzige Option. Kurzer Überblick.
+
+SGLang spielt in derselben Liga und ist besonders stark, wenn viele Anfragen mit demselben Anfang kommen, zum Beispiel immer derselbe System-Prompt.
+
+TensorRT-LLM und NIM von NVIDIA holen das Letzte aus der Hardware, dafür ist es mehr Bauarbeit oder kostet Lizenz.
+
+Red Hat AI Inference Server ist im Prinzip vLLM mit Support. Für alle, die OpenShift fahren und einen Ansprechpartner brauchen, interessant.
+
+Und llama.cpp beziehungsweise Ollama: perfekt für den Laptop. Für einen Server mit hunderten Nutzern ist das aber nicht gemacht.
+
+Warum wir bei vLLM gelandet sind: TODO, kurz die eigene Begründung.
+:::
 
 # Modell und Hardware
 
 Welches Modell passt eigentlich auf meine Karten?
 
+## Welches Modell? Wir haben einfach angefangen
+
+<div class="slide-logos"><img src="logos/qwen.svg" alt="Qwen"><img src="logos/huggingface.svg" alt="Hugging Face"></div>
+
+<p>Ehrlich: Eine große Begründung gibt es nicht. Wir haben <strong>keinen Modelltest</strong> gemacht, sind mit Qwen gestartet und zufrieden.</p>
+
+| Modell | Größe | Lizenz |
+|--------|-------|--------|
+| **Qwen3.8-27B** (bei uns) | 27 Mrd., dicht | Apache 2.0 |
+| **Qwen3.8-Flash-Next** (bei uns) | 176 Mrd. gesamt, 6 Mrd. aktiv | <span class="todo">prüfen</span> |
+| Gemma 4 (Google) | 31 Mrd., dicht | Apache 2.0 |
+| Mistral Small 4 | 119 Mrd. gesamt, 6,5 Mrd. aktiv | Apache 2.0 |
+| DeepSeek V4.1-Flash | 552 Mrd. gesamt, 8 bis 16 Mrd. aktiv | MIT |
+| GLM-5.3-Flash (Z.ai) | 320 Mrd. gesamt, 18 Mrd. aktiv | MIT |
+
+<p class="muted" style="font-size:15px">Angaben aus den Model Cards auf Hugging Face, Stand 20.10.2026. Es gibt noch mehr, die Liste ist eine Auswahl in ähnlicher Klasse.</p>
+
+::: notes
+(ca. 2 Min.)
+
+Die ehrliche Antwort auf "Warum Qwen?" ist: Wir haben keinen großen Test gemacht. Wir sind einfach gestartet, und es hat gut funktioniert. Daran sind wir hängen geblieben.
+
+Es gibt andere Modelle in dieser Klasse. Gemma 4 von Google als dichtes 31B-Modell, Mistral Small 4 mit 119 Milliarden Parametern, aber nur 6,5 Milliarden aktiv, DeepSeek V4.1-Flash und GLM-5.3-Flash aus China, beide unter MIT-Lizenz. Alle mit offenen Gewichten.
+
+Wichtig bei der Auswahl: Die Lizenz prüfen, und beim Vergleich zwischen "gesamt" und "aktiv" unterscheiden. Für den Speicher zählt die Gesamtgröße, für die Geschwindigkeit die aktiven Parameter.
+
+Der Markt bewegt sich schnell, in ein paar Monaten sieht die Liste anders aus. Genau deshalb brauchen wir später Aliase im Gateway.
+
+Quellen: Model Cards bei Hugging Face. Bei DeepSeek stehen 552 Mrd. für das Backbone, dazu kommt ein Engram-Speicher. TODO: Lizenz von Qwen3.8-Flash-Next in der Model Card prüfen. Vor dem Vortrag Liste nochmal gegen den aktuellen Stand prüfen.
+:::
+
 ## Die Benchmark-Falle
 
-<div class="gb-row"><span class="gb-label">Eine H100</span><div class="gb-bar gpu" style="width:48px"></div><span class="gb-value">80 GB</span></div>
-<div class="gb-row fragment"><span class="gb-label">Qwen3-32B (BF16)</span><div class="gb-bar" style="width:38px"></div><span class="gb-value">64 GB</span></div>
-<div class="gb-row fragment"><span class="gb-label">Qwen3-235B (BF16)</span><div class="gb-bar" style="width:282px"></div><span class="gb-value">470 GB</span></div>
-<div class="gb-row fragment"><span class="gb-label">Qwen3-Coder-480B (BF16)</span><div class="gb-bar" style="width:576px"></div><span class="gb-value">960 GB ≈ 1 TB</span></div>
+<div class="gb-row"><span class="gb-label">Eine H100 NVL</span><div class="gb-bar gpu" style="width:56px"></div><span class="gb-value">94 GB</span></div>
+<div class="gb-row fragment"><span class="gb-label">Qwen3.8-27B (BF16)</span><div class="gb-bar" style="width:32px"></div><span class="gb-value">54 GB</span></div>
+<div class="gb-row fragment"><span class="gb-label">Qwen3.8-Flash-Next (BF16)</span><div class="gb-bar" style="width:211px"></div><span class="gb-value">176 Mrd. Parameter ≈ 350 GB</span></div>
+<div class="gb-row fragment"><span class="gb-label">Qwen3.8-2.4T (BF16)</span><div class="gb-bar" style="width:480px"></div><span class="gb-value">≈ 4,8 TB (Balken gekürzt)</span></div>
 
 <p class="fragment" style="margin-top:28px">Die tollen Benchmarks im Netz kommen oft von genau diesen Riesen. Für dich zählt, was auf <strong>deine</strong> Karten passt.</p>
 
+::: notes
+(ca. 2 Min.)
+
+Jetzt die Frage, die man sich zuerst stellen sollte. Man sieht online diese tollen Benchmarks: Open-Source-Modell schlägt GPT sowieso. Super.
+
+Aber schaut mal, wie groß die Modelle sind. Eine H100 NVL hat 94 Gigabyte. Das Qwen3.8-27B passt mit 54 Gigabyte locker rein. Das Flash-Next hat 176 Milliarden Parameter, in BF16 wären das rund 350 Gigabyte. Und das große Qwen3.8 mit 2,4 Billionen Parametern landet bei knapp 5 Terabyte, nur für die Gewichte.
+
+Die Rechnung ist immer dieselbe wie vorhin: Parameter mal 2 Byte.
+
+Die Botschaft: Nicht vom Benchmark blenden lassen. Erst schauen, was auf die eigene Hardware passt.
+:::
 
 ## Rechnen statt raten: Gewichte + KV Cache
 
 <div class="anim vram" data-anim="vram"></div>
 
+::: notes
+(ca. 3 Min.)
+
+Und jetzt der Teil, den viele vergessen: Die Gewichte sind nur die halbe Miete. Dazu kommt der KV Cache, also das Kurzzeitgedächtnis pro Anfrage. Und der wächst mit der Kontextlänge und mit der Zahl der parallelen Anfragen.
+
+Live durchspielen:
+1. Qwen3.8-27B in BF16 auf einer H100 NVL, 32k Kontext, 16 parallele Anfragen: passt nicht. Die Gewichte sind mit 54 GB kein Problem, aber der KV Cache kommt dazu.
+2. Auf FP8 umschalten: Gewichte halbieren sich, passt.
+3. Zum Vergleich ein dichtes Modell wählen, zum Beispiel 70B: Gleicher Kontext, viel mehr KV Cache pro Token. Das ist der Vorteil der hybriden Qwen-Architektur.
+4. Zum Schluss Flash-Next: einmal mit N-Gramm im RAM, einmal alles im VRAM, und zwei Karten einstellen. So läuft es bei uns.
+
+Wichtig: Das ist der schlimmste Fall, alle Anfragen gleichzeitig mit vollem Kontext. In der Praxis hat kaum eine Anfrage den vollen Kontext, und vLLM belegt den Cache in kleinen Blöcken nur nach Bedarf. Bei uns liegt die KV-Cache-Auslastung bei rund 10 %, es ist also viel Luft. TODO: Wert morgen gegen Grafana oder die vLLM-Metriken prüfen.
+
+Die Architekturwerte im Rechner sind gerundet und aus der config.json der Modelle. Bei den Qwen-Modellen ist nur der KV Cache der Attention-Schichten gerechnet, der kleine feste Zustand der DeltaNet-Schichten fehlt. Eine H100 NVL hat 94 GB.
+:::
 
 ## Wo finde ich heraus, was auf meine Hardware passt?
 
@@ -182,6 +382,15 @@ Welches Modell passt eigentlich auf meine Karten?
 - **config.json**: Schichten und KV-Köpfe, daraus ergibt sich der KV Cache
 - Faustregel: Parameter in Mrd. × Byte pro Gewicht = GB
 
+::: notes
+(ca. 1 Min.)
+
+Wo findet man das, ohne alles selbst zu rechnen? Mein Tipp sind die vLLM Recipes. Da steht pro Modell drin, wie viel Speicher es braucht und mit welchen Parametern man es startet. Hier als Beispiel das Qwen Flash Modell.
+
+Alternativ: Bei Hugging Face in den Reiter Files schauen. Die Größe der Dateien ist ziemlich genau der Speicher für die Gewichte. Und für den KV Cache die config.json.
+
+Vor dem Vortrag prüfen: Ist der Link noch aktuell?
+:::
 
 ## Tuning und Sizing: die wichtigsten Stellschrauben
 
@@ -189,12 +398,15 @@ Welches Modell passt eigentlich auf meine Karten?
 
 ::: {.column width="50%"}
 ```bash
-vllm serve Qwen/Qwen3-32B \
-  --max-model-len 32768 \
+vllm serve Qwen/Qwen3.8-27B \
+  --max-model-len 65536 \
   --gpu-memory-utilization 0.90 \
   --max-num-seqs 64 \
   --tensor-parallel-size 2 \
-  --kv-cache-dtype fp8
+  --kv-cache-dtype fp8 \
+  --reasoning-parser qwen3 \
+  --enable-auto-tool-choice \
+  --tool-call-parser qwen3_coder
 ```
 :::
 
@@ -204,10 +416,26 @@ vllm serve Qwen/Qwen3-32B \
 - `max-num-seqs`: wie viele Anfragen parallel laufen
 - `tensor-parallel-size`: Modell auf mehrere Karten verteilen
 - `kv-cache-dtype fp8`: KV Cache halbieren
+- `*-parser`: Thinking und Tool-Calls sauber trennen
 :::
 
 ::::
 
+::: notes
+(ca. 2 Min.)
+
+Das sind die Stellschrauben, an denen man am meisten dreht.
+
+Kontextlänge begrenzen: Braucht wirklich jeder 128k Tokens? Meistens nicht. Und jedes k weniger ist Speicher für mehr parallele Nutzer.
+
+Tensor Parallel: Das Modell wird auf mehrere Karten aufgeteilt, wenn es nicht auf eine passt.
+
+KV Cache in FP8: halbiert den Speicher für das Kurzzeitgedächtnis, in der Praxis merkt man das an der Qualität kaum.
+
+Das Beispiel ist allgemein, die Parser-Flags stammen aus dem vLLM Recipe für Qwen3.8 Flash-Next. Vor dem Vortrag gegen die Version prüfen: `vllm serve --help`. TODO: unsere echten Werte aus dem Projekt einsetzen.
+
+Das schwierigste Sizing ist die Balance zwischen max-model-len und parallelen Anfragen. Beides frisst KV Cache. Bei uns ist die Last bisher überschaubar, sie wird erst noch kommen. Dann muss das Sizing stimmen.
+:::
 
 ## Der Auslagerungs-Trick beim Flash-Modell
 
@@ -215,16 +443,71 @@ Rechnen braucht VRAM, Nachschlagen nicht. Darum liegen die N-Gramm-Gewichte im n
 
 <div class="anim" data-anim="offload"></div>
 
+::: notes
+(ca. 2 Min.)
+
+Jetzt der Trick, der Flash-Next auf zwei Karten möglich macht.
+
+Das Modell hat neben den normalen Gewichten eine N-Gramm-Tabelle. Laut vLLM Recipe sind das 51 Mrd. Parameter zusätzlich zu den 125 Mrd. des Hauptmodells, aktiv sind pro Token nur 6 Mrd. Das Recipe zeigt als Beispiel acht H100 mit CPU-Offload der Tabelle, mindestens 51 GB Host-Speicher. Bei uns läuft das Modell auf nur zwei H100 NVL, und wir lagern die Tabelle komplett in den Arbeitsspeicher aus. Das funktioniert richtig gut, und es ist ein sehr schnelles Modell. TODO: Quantisierung (FP8?) und Host-Speicher gegen unser Deployment bestätigen.
+
+Der Unterschied: Mit den normalen Gewichten wird gerechnet, riesige Matrixmultiplikationen, das muss auf der GPU passieren. In der N-Gramm-Tabelle wird pro Token nur nachgeschlagen. Ein paar Zeilen lesen, fertig.
+
+Die Frage, die sich jetzt jeder stellt: Wird das nicht langsamer? Kaum, und zwar aus zwei Gründen.
+
+Erstens die Datenmenge. Für die Rechen-Gewichte muss die GPU pro Token durch viele Gigabyte durch. Dafür braucht sie ihren extrem schnellen Speicher. Aus der N-Gramm-Tabelle werden pro Token nur ein paar Zeilen gelesen, das sind Kilobyte. Das schafft auch der normale RAM locker.
+
+Zweitens weiß man vorher, welche Zeilen man braucht: Die hängen nur an den Tokens, die schon da sind. Man kann sie also schon holen, während die GPU noch am vorherigen Schritt rechnet. Die GPU wartet nicht.
+
+In der Animation sieht man das: Wenn ein Token in der Tabelle nachschlägt, leuchtet nur eine dünne Zeile auf. Beim Rechnen leuchtet der ganze Block.
+
+Also haben wir die Tabelle in den Heap ausgelagert.
+
+Live umschalten: Die Tabelle wandert in den RAM, der KV Cache wird größer. Das heißt mehr Platz für parallele Anfragen oder längeren Kontext.
+
+Die Größen in der Animation sind Beispielwerte. TODO: echte Werte einsetzen (wie viel GB) und prüfen, ob die Erklärung so stimmt, besonders das Vorausladen. Das Recipe sagt, die Tabelle wird asynchron vorgeladen.
+:::
+
+## Welche Hardware braucht man wirklich?
+
+<div class="grid2">
+<div class="ordix-card"><h3>Ausprobieren</h3><p>Ein MacBook reicht. Kleine Modelle, ein Nutzer, llama.cpp oder Ollama</p></div>
+<div class="ordix-card"><h3>Für ein Team</h3><p>Ein Server mit GPUs. Der VRAM entscheidet: Gewichte plus KV Cache</p></div>
+<div class="ordix-card accent"><h3>Bei uns</h3><p>Zwei H100 NVL, dazu viel Arbeitsspeicher für die ausgelagerte N-Gramm-Tabelle</p></div>
+<div class="ordix-card"><h3>Konkret für dein Projekt?</h3><p>Komm nach dem Vortrag zu mir. Das hängt an Modell, Kontext und Nutzerzahl</p></div>
+</div>
+
+::: notes
+(ca. 2 Min.)
+
+Welche Hardware braucht man wirklich? Ich gebe bewusst keine Hardware-Empfehlung, weil das vom Einzelfall abhängt.
+
+Was ich sagen kann: Zum Ausprobieren reicht ein MacBook. Wer das ordentlich für ein Team betreiben will, braucht deutlich mehr. Dann entscheidet der Grafikspeicher, und den habt ihr eben schon gerechnet: Gewichte plus KV Cache.
+
+Bei uns sind es zwei H100 NVL für das Flash-Next-Modell, mit der ausgelagerten Tabelle im Arbeitsspeicher. Das funktioniert gut, ist aber nicht die Antwort für jeden.
+
+Wer eine konkrete Frage hat: nach dem Vortrag ansprechen.
+:::
 
 ## Mehr als Text: Vision und Thinking
 
 <div class="slide-logos"><img src="logos/qwen.svg" alt="Qwen"><img src="logos/mistral.svg" alt="Mistral AI"></div>
 
-- Am Ende laufen bei uns **Mistral und Qwen** <span class="todo">Modellnamen</span>
-- **Vision**: Bilder und Scans als Eingabe <span class="todo">Beispiel aus dem Projekt</span>
-- **Thinking-Varianten**: Das Modell denkt erst nach, dann antwortet es. Kostet mehr Tokens, hilft bei schweren Fragen
+- Heute laufen bei uns **Qwen3.8-Flash-Next** und **Qwen3.8-27B** <span class="todo">Mistral noch im Betrieb?</span>
+- **Vision**: Beide Qwen-Modelle verstehen Bilder und Scans <span class="todo">Beispiel aus dem Projekt</span>
+- **Thinking**: Das Modell denkt erst nach, dann antwortet es. Kostet mehr Tokens, hilft bei schweren Fragen. Beim 27B ist es standardmäßig an und lässt sich pro Anfrage abschalten
 - Mehrere Modelle heißt: Spätestens jetzt brauchst du **eine zentrale Tür**
 
+::: notes
+(ca. 2 Min.)
+
+Nach dem ersten Chatbot kamen weitere Modelle dazu. Heute laufen bei uns die beiden Qwen3.8-Modelle, genau die Modellfamilie aus dem Abstract. TODO: Läuft Mistral noch?
+
+Vision: Beide Modelle können Bilder lesen. TODO: konkretes Beispiel.
+
+Thinking: Das Modell schreibt erst seine Gedanken auf und antwortet dann. Bei schwierigen Fragen ist die Antwort besser, dafür entstehen mehr Tokens. Beim 27B ist das Thinking laut Model Card standardmäßig an und kann pro Anfrage abgeschaltet werden. Wieder ein Punkt für den Speicher.
+
+Und damit sind wir beim Thema Betrieb: Mehrere Modelle, mehrere Server, viele Nutzer. Da braucht es Ordnung.
+:::
 
 # Betrieb mit vLLM
 
@@ -252,8 +535,8 @@ containers:
   - name: vllm
     image: vllm/vllm-openai
     args:
-      - --model=/models/qwen3-32b
-      - --served-model-name=qwen
+      - --model=/models/qwen3.8-flash-next
+      - --served-model-name=flash-next
       - --max-model-len=32768
     resources:
       limits:
@@ -266,6 +549,19 @@ containers:
 
 ::::
 
+::: notes
+(ca. 3 Min.)
+
+Was machen wir jetzt konkret in OpenShift? Eigentlich nichts Magisches.
+
+Der GPU Operator von NVIDIA sorgt dafür, dass OpenShift die Karten kennt. Danach ist eine GPU einfach eine Ressource, wie CPU oder RAM.
+
+Pro Modell gibt es ein Deployment mit vLLM. Die Gewichte liegen auf einem Volume, damit nicht bei jedem Neustart etliche Gigabyte neu geladen werden müssen.
+
+Davor ein Service, und an den hängt das Gateway, dazu gleich mehr.
+
+TODO: Abgleich mit dem echten Setup. Plain Deployments oder OpenShift AI mit KServe? Wie kommen die Modelle ins Volume?
+:::
 
 # Gateway mit LiteLLM
 
@@ -275,6 +571,19 @@ Eine Tür für alle Modelle
 
 <div class="anim" data-anim="gateway"></div>
 
+::: notes
+(ca. 3 Min.)
+
+Wenn mehrere Modelle laufen und viele Nutzer drauf zugreifen, will man nicht, dass jeder direkt mit jedem vLLM redet. Deshalb haben wir LiteLLM als zentrales Gateway davor.
+
+In der Animation: Links die Clients, also Chat, IDE und Agents. In der Mitte LiteLLM mit drei Stationen. Erst der API Key: Wer keinen gültigen Key hat, kommt nicht rein. Dann die Guardrails: Heikle Inhalte werden geblockt. Dann das Routing zum richtigen Modell.
+
+Live: Die Häkchen rausnehmen. Ohne API Keys kommt jeder durch, ohne Guardrails auch der heikle Inhalt. Unten zählt rot mit, was durchrutscht.
+
+Und unten Langfuse: Jede Anfrage hinterlässt einen Trace. Damit sehen wir, wer was nutzt, wie lange es dauert und wie viele Tokens draufgehen.
+
+Hinweis: Die Anteile von Anfragen ohne Key und mit heiklem Inhalt sind ausgedacht, nur zur Veranschaulichung.
+:::
 
 ## LiteLLM: Konfiguration statt Code
 
@@ -285,14 +594,14 @@ Eine Tür für alle Modelle
 ::: {.column width="55%"}
 ```yaml
 model_list:
-  - model_name: mistral
+  - model_name: coding-high
     litellm_params:
-      model: hosted_vllm/mistral
-      api_base: http://vllm-mistral:8000/v1
-  - model_name: qwen
+      model: hosted_vllm/flash-next
+      api_base: http://vllm-flash:8000/v1
+  - model_name: chat
     litellm_params:
-      model: hosted_vllm/qwen
-      api_base: http://vllm-qwen:8000/v1
+      model: hosted_vllm/qwen3.8-27b
+      api_base: http://vllm-27b:8000/v1
 
 guardrails:
   - guardrail_name: eingabe-pruefen
@@ -306,7 +615,7 @@ litellm_settings:
 :::
 
 ::: {.column width="45%"}
-- Ein Eintrag pro Modell, mehr ist es nicht
+- Ein Eintrag pro **Alias**, mehr ist es nicht
 - **API Keys** pro Team, mit Budget und erlaubten Modellen
 - **Guardrails** vor dem Aufruf
 - **Tool Policies**: wer welchen MCP-Server nutzen darf
@@ -315,6 +624,37 @@ litellm_settings:
 
 ::::
 
+::: notes
+(ca. 2 Min.)
+
+So sieht das in LiteLLM aus. Pro Alias ein Eintrag mit der Adresse des vLLM-Service. Mehr ist es nicht. Die Namen der Aliase sind hier Beispiele, gleich mehr dazu.
+
+Darüber kommen die Funktionen, die man im Betrieb braucht: API Keys pro Team mit Budget, und damit haben wir die Kostenkontrolle abgedeckt. Dazu Guardrails, Tool Policies für MCP-Server und das Tracing nach Langfuse.
+
+Das mit den Tool Policies ist übrigens die Brücke zu meinem zweiten Vortrag über MCP, Skills und Agents.
+
+TODO: Welche Guardrails setzen wir wirklich ein? Presidio steht hier nur als Beispiel.
+:::
+
+## Unabhängigkeit: Aliase statt Modellnamen
+
+<div class="anim" data-anim="alias"></div>
+
+<p class="muted" style="font-size:15px">Beispielzuordnung und Beispielwerte, keine Projektdaten. Die Clients kennen nur den Alias.</p>
+
+::: notes
+(ca. 3 Min.)
+
+Hier steckt die Unabhängigkeit aus dem Abstract. Unsere Nutzer sprechen nie ein konkretes Modell an, sondern einen Alias: chat, coding-normal, coding-high und general-coding. Dahinter hängt je ein Modell.
+
+Der Vorteil: Wir können das Modell dahinter austauschen, ohne dass irgendein Client etwas ändern muss. Neues Modell erscheint, wir testen es, hängen den Alias um, fertig. Auch der Anbieter ist egal, im Notfall könnte da auch eine Cloud-API hängen.
+
+Klickt auf einen Alias: Er wandert zum nächsten Modell. Und jetzt der Haken, der uns am meisten Arbeit gemacht hat: Das ist nicht so einfach, wie es aussieht. Jedes Modell hat eigene Grenzen, zum Beispiel max-model-len. Hängt man coding-high an ein Modell mit kürzerem Kontext, bekommen Clients mit langen Prompts plötzlich Fehler, obwohl sich der Alias nicht geändert hat.
+
+Das Lifecycle-Management von Modellen war für uns die größte Herausforderung, mehr als das Serving selbst.
+
+TODO: echte Aliase und Zuordnung prüfen, die Namen und Werte in der Animation sind Beispiele.
+:::
 
 ## Für die Nutzer: einfach die OpenAI-API
 
@@ -327,13 +667,45 @@ client = OpenAI(
 )
 
 antwort = client.chat.completions.create(
-    model="qwen",
+    model="chat",
     messages=[{"role": "user", "content": "Fasse diesen Bescheid zusammen: ..."}],
 )
 ```
 
 Jedes Tool, das mit OpenAI spricht, spricht auch mit unserem Gateway.
 
+::: notes
+(ca. 1 Min.)
+
+Für die Nutzer ändert sich fast nichts. Das ist die normale OpenAI-Bibliothek, nur mit anderer Adresse und anderem Key.
+
+Damit funktionieren auch die ganzen Tools, die die Leute sowieso nutzen wollen: Chat-Oberflächen, Coding-Assistenten in der IDE, Agent-Frameworks.
+
+Die Adresse ist ein Beispiel, nicht die echte.
+:::
+
+## Im Alltag angekommen
+
+<div class="grid2">
+<div class="ordix-card accent"><h3>OpenCode</h3><p>Unser Coding-Agent. Open Source wie die Modelle, wird sehr intensiv genutzt</p></div>
+<div class="ordix-card"><h3>IntelliJ</h3><p>Integration direkt in der IDE <span class="todo">welches Plugin?</span></p></div>
+<div class="ordix-card"><h3>Continue</h3><p>Zeitweise genutzt, ebenfalls über das Gateway</p></div>
+<div class="ordix-card"><h3>Eigene Programme</h3><p>Die API steckt in Software: Release Notes automatisch erzeugen, Logs mit KI anreichern und auf Fehler hinweisen</p></div>
+</div>
+
+::: notes
+(ca. 2 Min.)
+
+Das ist die Anbindung an die tägliche Arbeit aus dem Abstract. Weil es die OpenAI-API ist, passt alles.
+
+OpenCode ist unser Coding-Agent. Open Source, passt also zum Rest, und wird bei uns sehr intensiv genutzt. In IntelliJ haben wir die Integration in der IDE. Continue haben wir zeitweise genutzt.
+
+Und nicht nur Menschen: Wir bauen die API in eigene Programme ein. Zwei Beispiele: Release Notes werden automatisch generiert. Und Logs werden mit KI angereichert, sie weist dann schon auf Fehler hin.
+
+Alle gehen über denselben Proxy, mit Key und Tracing. Dadurch sieht man auch, wer was nutzt.
+
+TODO: IntelliJ-Plugin nennen. Prüfen, ob Continue noch im Einsatz ist.
+:::
 
 ## Was am Ende da ist
 
@@ -341,12 +713,21 @@ Jedes Tool, das mit OpenAI spricht, spricht auch mit unserem Gateway.
 <div class="stack-main">
 <div class="layer clients fragment" data-fragment-index="5"><b>Nutzer</b> Chat · IDE · Agents mit MCP</div>
 <div class="layer gateway fragment" data-fragment-index="3"><img class="logo" src="logos/litellm.svg" alt="LiteLLM"><span>Zentraler Proxy · API Keys · Guardrails · Tool Policies</span></div>
-<div class="layer fragment" data-fragment-index="2"><img class="logo" src="logos/vllm.svg" alt="vLLM"><span>Ein Deployment pro Modell: Mistral, Qwen, ...</span></div>
-<div class="layer base fragment" data-fragment-index="1"><img class="logo" src="logos/openshift.svg" alt="OpenShift"><img class="logo" src="logos/nvidia.svg" alt="NVIDIA"><span>OpenShift mit H100</span></div>
+<div class="layer fragment" data-fragment-index="2"><img class="logo" src="logos/vllm.svg" alt="vLLM"><span>Ein Deployment pro Modell: Qwen3.8-Flash-Next, Qwen3.8-27B, ...</span></div>
+<div class="layer base fragment" data-fragment-index="1"><img class="logo" src="logos/openshift.svg" alt="OpenShift"><img class="logo" src="logos/nvidia.svg" alt="NVIDIA"><span>OpenShift mit 2 × H100 NVL</span></div>
 </div>
 <div class="stack-side fragment" data-fragment-index="4"><img class="logo" src="logos/langfuse.svg" alt="Langfuse"><span>Tracing: wer, was, wie lange, wie viele Tokens</span></div>
 </div>
 
+::: notes
+(ca. 2 Min.)
+
+Zusammengefasst, von unten nach oben. Klick für Klick.
+
+Unten OpenShift mit den zwei H100 NVL. Darauf vLLM, ein Deployment pro Modell. Davor LiteLLM als einzige Tür, mit Keys, Guardrails und Tool Policies. Daneben Langfuse, das alles mitschreibt. Und oben die Nutzer mit ihren Tools.
+
+Das alles läuft heute so.
+:::
 
 # Fazit
 
@@ -360,6 +741,19 @@ Wann lohnt sich der eigene Betrieb?
 
 <p class="muted" style="font-size:15px">Listenpreise bei OpenRouter, abgefragt am 20.10.2026 bei Preis-Trackern. Vor dem Vortrag live prüfen. Ohne Cache-Rabatt, ohne Hardware, Strom und Personal.</p>
 
+::: notes
+(ca. 2 Min.)
+
+Was hätte derselbe Verbrauch in der Cloud gekostet? Wir haben bei OpenRouter geschaut, was die Modelle dort pro Token kosten. Das ist nur ein Vergleichswert, kein Angebot. TODO: prüfen, ob das gehostete Qwen3.8 Flash dem Flash-Next entspricht.
+
+Die Preise sind keine Schätzung: Qwen3.8 Flash kostet bei OpenRouter 0,15 $ pro Million Input-Tokens und 0,47 $ pro Million Output-Tokens. Beim 27B schwanken die Angaben je nach Anbieter und Quelle stark, ich zeige 0,35 $ und 2,75 $ als Beispiel. Stand 20.10.2026, vor dem Vortrag live prüfen.
+
+Der Regler ist der Output-Anteil. Agenten und Chat sind meist Input-lastig, weil jeder Aufruf den ganzen Kontext mitschickt. Output-Tokens kosten ein Mehrfaches. Den echten Anteil können wir aus Langfuse oder LiteLLM holen. TODO: Anteil nachschlagen.
+
+Zwei Dinge fehlen in der Rechnung. Erstens Cache-Rabatte: Bei agentischer Nutzung wird viel Input aus dem Cache gelesen, bei Flash kostet das nur etwa 0,016 $ pro Million. Die Cloud-Rechnung wäre dann deutlich niedriger. Zweitens unsere eigenen Kosten, die haben wir noch nicht sauber beziffert.
+
+Ehrlich gesagt: Das ist nur die halbe Rechnung. Unser Betrieb läuft noch recht hemdsärmelig, eine saubere Rechnung für Strom, Hardware und Personal haben wir noch nicht. Darum die nächste Folie.
+:::
 
 ## Wann lohnt sich das? Keine Pauschalantwort
 
@@ -370,6 +764,18 @@ Wann lohnt sich der eigene Betrieb?
 <div class="ordix-card accent"><h3>Was ist uns Datenschutz wert?</h3><p>Steht in keiner Tokenrechnung</p></div>
 </div>
 
+::: notes
+(ca. 2 Min.)
+
+Wann lohnt es sich also? Ich tue mich ehrlich schwer mit einer Pauschalantwort. Das muss man über lange Sicht sehen.
+
+Vier Fragen:
+Reichen die Modelle für meine Aufgaben? Nicht für den Benchmark, sondern für meinen Alltag.
+Was kostet der Betrieb? Strom, Updates, Monitoring, und vor allem Menschen, die sich kümmern.
+Was kostet die Anschaffung? Über mehrere Jahre gerechnet.
+
+Und die vierte Frage steht in keiner Tokenrechnung: Was ist uns Datenschutz wert?
+:::
 
 ## Datenschutz {.hex}
 
@@ -377,24 +783,55 @@ Wann lohnt sich der eigene Betrieb?
 
 <p class="lead">Weil nichts das Haus verlässt: eigene Hardware, eigenes Netz, eigene Regeln.</p>
 
+::: notes
+(ca. 1 Min.)
+
+Für uns zählt das am meisten. Die Leute können da alles reinwerfen. Bescheide, interne Dokumente, Personendaten. Keine Abwägung, kein "darf ich das hier eingeben?".
+
+Das klappt, weil nichts das Haus verlässt. Eigene Hardware, eigenes Netz, eigene Regeln. Genau das steckt im Titel.
+
+Kurz Pause machen.
+:::
 
 ## Ehrlich: die Stolpersteine
 
-- **Benchmarks sind nicht deine Hardware.** Erst rechnen, dann auswählen
-- **Der KV Cache frisst den Speicher**, nicht nur die Gewichte
-- **Ein Modell ist schnell gestartet, der Betrieb macht die Arbeit**
+- **Model Lifecycle**: Modelle austauschen ist schwerer als gedacht. Aliase helfen, aber Kontextlänge und Co. ändern sich mit
+- **Sizing**: Die Balance zwischen max-model-len und parallelen Anfragen. Die echte Last kommt erst noch
+- **Das Serving selbst** war dagegen relativ unkompliziert. Bei wenig Last
+- **Benchmarks sind nicht deine Hardware, und der KV Cache frisst den Speicher**
 - **Governance kommt schneller als gedacht**: Keys, Guardrails, wer darf welche Tools
-- <span class="todo">weitere Stolpersteine aus dem Projekt</span>
 
+::: notes
+(ca. 2 Min.)
+
+Im Abstract habe ich versprochen, ehrlich über Stolpersteine zu reden. Hier die wichtigsten.
+
+Das Größte für uns war das Lifecycle-Management von Modellen. Wie tausche ich ein Modell aus, ohne dass die Nutzer etwas merken? Dafür gibt es die Aliase. Aber auch das ist nicht trivial, weil sich zum Beispiel max-model-len ändern kann.
+
+Das Sizing: Wie viel Kontext, wie viele parallele Anfragen? Beides frisst KV Cache. Wir haben bisher nicht so viel Last, die kommt erst noch. Dann müssen wir das richtige Maß finden.
+
+Das Serving an sich war relativ unkompliziert. Das liegt aber auch daran, dass die Last bisher überschaubar ist.
+
+Benchmarks und KV Cache: haben wir gesehen.
+
+Und Governance: Sobald es angenommen wird, kommen die Fragen. Wer darf welches Modell, wer darf welchen MCP-Server, gibt es Guardrails? Das haben wir über LiteLLM gelöst, aber man sollte es von Anfang an einplanen.
+:::
 
 ## Zum Mitnehmen
 
 1. Ein Modell sind Dateien. **Die Arbeit steckt im Betrieb**
 2. **Erst rechnen, dann kaufen**: Gewichte + KV Cache
-3. **vLLM** für die Modelle, **LiteLLM** als einzige Tür davor
+3. **vLLM** für die Modelle, **LiteLLM** als einzige Tür davor, **Aliase** statt Modellnamen
 4. **Keys, Guardrails und Tracing** von Anfang an
 5. **Datenschutz**: Bei uns darf alles rein
 
+::: notes
+(ca. 1 Min.)
+
+Fünf Punkte zum Mitnehmen. Wer nur einen mitnimmt: Rechnet, bevor ihr kauft. Und fragt euch, was euch Datenschutz wert ist.
+
+Danach Fragen.
+:::
 
 ## Wie kommt ihr zu diesem Vortrag?
 
@@ -406,5 +843,14 @@ Wann lohnt sich der eigene Betrieb?
 
 <p class="muted" style="font-size:18px">Startseite mit allen Vorträgen: janis-ax.github.io/conferences<br>Die Animationen laufen im Browser, ohne Installation. Mit der Taste S öffnet sich die Referentenansicht mit den Notizen.</p>
 
+::: notes
+(ca. 1 Min.)
+
+Alles, was ich gezeigt habe, könnt ihr selbst ausprobieren: die Folien, die Animationen zu Tokens, KV Cache und Batching, den VRAM-Rechner und die Sprechernotizen.
+
+Der Link führt direkt zu diesem Vortrag, auf der Startseite findet ihr auch meine anderen Vorträge von der DOAG. Die Seite läuft komplett im Browser, ihr braucht nichts zu installieren.
+
+TODO: Vor dem Vortrag prüfen, ob die Seite von außen erreichbar ist.
+:::
 
 ## Vielen Dank für Ihre Aufmerksamkeit {.closing}

@@ -443,17 +443,20 @@
 
   register('vram', function (root) {
     // KV Cache pro Token in MB (BF16) = 2 × Schichten × KV-Köpfe × Kopfgröße × 2 Byte, aus der config.json typischer Modelle
+    // Hybridmodelle (Qwen3.8): nur die Full-Attention-Schichten haben einen wachsenden KV Cache.
+    // 27B: 16 Schichten × 4 KV-Köpfe × 256 (config.json). Flash-Next: 12 Schichten × 2 KV-Köpfe × 256.
+    // Der kleine feste Zustand der Gated-DeltaNet-Schichten ist hier nicht mitgerechnet.
     var MODELS = [
-      { label: '7B', p: 7, kv: 0.131, hint: 'z. B. Mistral 7B' },
-      { label: '24B', p: 24, kv: 0.164, hint: 'z. B. Mistral Small' },
-      { label: '32B', p: 32, kv: 0.262, hint: 'z. B. Qwen3-32B' },
-      { label: '70B', p: 70, kv: 0.328, hint: 'z. B. Llama 3 70B' },
-      { label: '235B', p: 235, kv: 0.193, hint: 'z. B. Qwen3-235B-A22B' },
-      { label: '480B', p: 480, kv: 0.254, hint: 'z. B. Qwen3-Coder-480B' }
+      { label: '7B', p: 7, kv: 0.131, hint: 'z. B. Mistral 7B (dicht)' },
+      { label: '24B', p: 24, kv: 0.164, hint: 'z. B. Mistral Small (dicht)' },
+      { label: '70B', p: 70, kv: 0.328, hint: 'z. B. Llama 3 70B (dicht)' },
+      { label: 'Qwen3.8-27B', p: 27, kv: 0.066, hint: 'Qwen3.8-27B (hybrid, 16 von 64 Schichten mit KV Cache)' },
+      { label: 'Flash-Next', p: 125, kv: 0.025, hint: 'Qwen3.8-Flash-Next: 125 Mrd. im VRAM, 51 Mrd. N-Gramm im RAM (hybrid)' },
+      { label: 'Flash-Next, alles im VRAM', p: 176, kv: 0.025, hint: 'Qwen3.8-Flash-Next ohne Auslagerung: 176 Mrd. Parameter' }
     ];
     var PREC = [{ label: 'BF16', b: 2 }, { label: 'FP8', b: 1 }, { label: 'INT4', b: 0.5 }];
-    var GPU_GB = 80, UTIL = 0.9, BUFFER = 3, WIDTH = 1100;
-    var st = { m: 2, b: 2, ctx: 32, users: 16, gpus: 1 };
+    var GPU_GB = 94, UTIL = 0.9, BUFFER = 3, WIDTH = 1100;
+    var st = { m: 3, b: 2, ctx: 32, users: 16, gpus: 1 };
 
     var bar = div('vram-bar', root);
     var gpus = div('vram-gpus', bar);
@@ -473,7 +476,7 @@
     choice(c1, PREC.map(function (p) { return { label: p.label, value: p.b }; }), st.b, function (v) { st.b = v; update(); });
     slider(c2, 'Kontext', 4, 128, 4, st.ctx, function (v) { return v + 'k'; }, function (v) { st.ctx = v; update(); });
     slider(c2, 'Parallele Anfragen', 1, 64, 1, st.users, String, function (v) { st.users = v; update(); });
-    slider(c2, 'H100', 1, 8, 1, st.gpus, function (v) { return v + ' × 80 GB'; }, function (v) { st.gpus = v; update(); });
+    slider(c2, 'H100 NVL', 1, 8, 1, st.gpus, function (v) { return v + ' × 94 GB'; }, function (v) { st.gpus = v; update(); });
 
     function update() {
       var m = MODELS[st.m];
@@ -488,7 +491,7 @@
       for (var i = 0; i < st.gpus; i++) {
         var g = div('vram-gpu', gpus);
         place(g, i * GPU_GB, GPU_GB);
-        g.textContent = GPU_GB * px > 70 ? 'H100 ' + (i + 1) : '';
+        g.textContent = GPU_GB * px > 70 ? 'H100 NVL ' + (i + 1) : '';
       }
       place(segW, 0, w);
       place(segK, w, kv);
@@ -657,6 +660,68 @@
     slider(bar, 'Anfragen pro Sekunde', 0.5, 6, 0.5, rate, function (v) { return fmt(v, 1); }, function (v) { rate = v; });
     playButtons(bar, inst);
     inst.reset();
+  });
+
+  /* ===== Aliase: Modelle austauschen, ohne dass Clients etwas merken ===== */
+
+  register('alias', function (root) {
+    // Beispielzuordnung und Beispielwerte, keine Projektdaten
+    var W = 1100, H = 360, s = svg(root, W, H);
+    var ALIASES = [
+      { name: 'chat', need: 16, y: 20 },
+      { name: 'coding-normal', need: 64, y: 100 },
+      { name: 'coding-high', need: 128, y: 180 },
+      { name: 'general-coding', need: 64, y: 260 }
+    ];
+    var MODELS = [
+      { name: 'Qwen3.8-Flash-Next', ctx: 256, color: C.orange },
+      { name: 'Qwen3.8-27B', ctx: 128, color: C.navy },
+      { name: 'kleineres Modell', ctx: 32, color: C.muted }
+    ];
+    var START = [1, 0, 0, 1];
+    var target = START.slice();
+    var AX = 20, AW = 330, AH = 54, MX = 790, MW = 290, MH = 66;
+    function my(i) { return 22 + i * 100; }
+
+    var lines = el('g', {}, s);
+    MODELS.forEach(function (m, i) {
+      el('rect', { x: MX, y: my(i), width: MW, height: MH, rx: 4, fill: C.white, stroke: m.color, 'stroke-width': 2.5 }, s);
+      text(s, MX + MW / 2, my(i) + 28, m.name, { 'text-anchor': 'middle', 'font-weight': 700, fill: m.color });
+      text(s, MX + MW / 2, my(i) + 52, 'vLLM, max-model-len ' + m.ctx + 'k', { 'text-anchor': 'middle', 'font-size': 14, fill: C.muted });
+    });
+    var boxes = ALIASES.map(function (a, i) {
+      var g = el('g', { style: 'cursor:pointer' }, s);
+      var r = el('rect', { x: AX, y: a.y, width: AW, height: AH, rx: 4, fill: C.light, stroke: C.navy, 'stroke-width': 2 }, g);
+      text(g, AX + 16, a.y + 24, a.name, { 'font-weight': 700, 'font-family': 'Menlo, Consolas, monospace', 'font-size': 18 });
+      text(g, AX + 16, a.y + 44, 'Clients schicken bis zu ' + a.need + 'k Tokens', { 'font-size': 13, fill: C.muted });
+      g.addEventListener('click', function (e) { e.stopPropagation(); target[i] = (target[i] + 1) % MODELS.length; render(); });
+      return r;
+    });
+    var info = text(s, 20, 348, '', { 'font-size': 16, 'font-weight': 600 });
+
+    function render() {
+      lines.textContent = '';
+      var broken = [];
+      ALIASES.forEach(function (a, i) {
+        var m = MODELS[target[i]], ay = a.y + AH / 2, ty = my(target[i]) + MH / 2;
+        var bad = m.ctx < a.need;
+        if (bad) broken.push(a.name);
+        el('path', {
+          d: 'M' + (AX + AW) + ',' + ay + ' C' + (AX + AW + 200) + ',' + ay + ' ' + (MX - 200) + ',' + ty + ' ' + MX + ',' + ty,
+          fill: 'none', stroke: bad ? C.bad : m.color, 'stroke-width': 3, 'stroke-dasharray': bad ? '7 6' : 'none'
+        }, lines);
+        boxes[i].setAttribute('stroke', bad ? C.bad : C.navy);
+        boxes[i].setAttribute('stroke-width', bad ? 3.5 : 2);
+      });
+      info.textContent = broken.length
+        ? 'Zu kurzer Kontext: ' + broken.join(', ') + ' bekommen Fehler, obwohl der Alias gleich geblieben ist.'
+        : 'Alles passt. Klick auf einen Alias hängt ihn an das nächste Modell.';
+      info.setAttribute('fill', broken.length ? C.bad : C.navy);
+    }
+
+    var bar = controls(root);
+    button(bar, 'Zurücksetzen', function () { target = START.slice(); render(); }, 'ghost');
+    render();
   });
 
   /* ===== Kosten: derselbe Verbrauch über eine Cloud-API ===== */
