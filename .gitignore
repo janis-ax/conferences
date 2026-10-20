@@ -21,6 +21,7 @@
 **/*.md
 **/*.html
 !/index.html
+!/*/assets/*.html
 **/*_files/
 **/.DS_Store
 **/.quarto/
