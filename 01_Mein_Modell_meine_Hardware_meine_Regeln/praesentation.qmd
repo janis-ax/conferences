@@ -77,7 +77,7 @@ Gateway, Keys, Guardrails, mehrere Modelle, das kam alles erst später, als klar
 TODO: Worauf lief Mistral am Anfang?
 :::
 
-## Heute laufen alle KI-Anfragen der Behörde über LiteLLM {.hex}
+## Heute laufen alle KI-Anfragen über LiteLLM {.hex}
 
 <div class="bignum">4,5 bis 5 Mrd.</div>
 
@@ -86,7 +86,7 @@ TODO: Worauf lief Mistral am Anfang?
 ::: notes
 (ca. 1 Min.)
 
-Kurzer Sprung nach vorne, damit ihr wisst, wo die Geschichte hinführt. Aus dem Chatbot ist mehr geworden. Heute läuft jede KI-Anfrage der Behörde über ein zentrales LiteLLM. Was LiteLLM genau ist, zeige ich später.
+Kurzer Sprung nach vorne, damit ihr wisst, wo die Geschichte hinführt. Aus dem Chatbot ist mehr geworden. Heute läuft jede KI-Anfrage über ein zentrales LiteLLM. Was LiteLLM genau ist, zeige ich später.
 
 Darüber laufen 4,5 bis 5 Milliarden Tokens im Monat. Und die GPUs sind noch nicht ausgelastet, da ist noch Luft nach oben.
 
