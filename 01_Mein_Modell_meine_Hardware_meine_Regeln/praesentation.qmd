@@ -425,7 +425,7 @@ vllm serve Qwen/Qwen3.8-27B \
 
 ::::
 
-<p><strong>Bei uns:</strong> Flash-Next-FP8 mit 128k Kontext und 16 parallelen Anfragen, Qwen3.8-27B in FP8 mit maximaler Kontextlänge und 8 parallelen Anfragen.</p>
+<p><strong>Bei uns:</strong> Flash-Next-FP8 mit 128k Kontext und 16 parallelen Anfragen, Qwen3.8-27B in FP8 mit 262.144 Tokens Kontext (das Maximum des Modells) und 8 parallelen Anfragen.</p>
 
 ::: notes
 (ca. 2 Min.)
@@ -438,7 +438,7 @@ Tensor Parallel: Das Modell wird auf mehrere Karten aufgeteilt, wenn es nicht au
 
 KV Cache in FP8: halbiert den Speicher für das Kurzzeitgedächtnis, in der Praxis merkt man das an der Qualität kaum.
 
-Das Beispiel ist allgemein, die Parser-Flags stammen aus dem vLLM Recipe für Qwen3.8 Flash-Next. Vor dem Vortrag gegen die Version prüfen: `vllm serve --help`. Unsere echten Werte stehen unter dem Beispiel. Flash-Next-FP8: max-model-len 128k, max-num-seqs 16, rund 90 GB Arbeitsspeicher. TODO: Ist das der Speicher für die N-Gramm-Tabelle? Qwen3.8-27B in FP8: maximale Kontextlänge des Modells und 8 parallele Anfragen. TODO: Wert für max-model-len beim 27B nennen.
+Das Beispiel ist allgemein, die Parser-Flags stammen aus dem vLLM Recipe für Qwen3.8 Flash-Next. Vor dem Vortrag gegen die Version prüfen: `vllm serve --help`. Unsere echten Werte stehen unter dem Beispiel. Flash-Next-FP8: max-model-len 128k, max-num-seqs 16, rund 90 GB Arbeitsspeicher. TODO: Ist das der Speicher für die N-Gramm-Tabelle? Qwen3.8-27B in FP8: max-model-len 262144, das ist das Maximum des Modells, und 8 parallele Anfragen.
 
 Das schwierigste Sizing ist die Balance zwischen max-model-len und parallelen Anfragen. Beides frisst KV Cache. Bei uns ist die Last bisher überschaubar, sie wird erst noch kommen. Dann muss das Sizing stimmen.
 :::
