@@ -39,8 +39,6 @@ Wer nach dem Vortrag weiterlesen oder Kontakt halten möchte: LinkedIn und mein 
 <div class="ordix-card"><h3>Sicherheit und Entwicklung</h3><p>IT-Security, Softwareentwicklung, agile Transformation und Seminare</p></div>
 </div>
 
-<p class="muted" style="font-size:16px; margin-top:20px">Mehr unter <a href="https://www.ordix.de">ordix.de</a>. Angaben von ordix.de, Stand 21.10.2026.</p>
-
 ::: notes
 (ca. 1 Min.)
 

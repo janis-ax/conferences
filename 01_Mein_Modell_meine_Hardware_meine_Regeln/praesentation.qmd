@@ -24,14 +24,12 @@ format:
 ::: notes
 (ca. 1 Min.)
 
-Gleich kommt eine kurze Vorstellung von mir und von ORDIX, dann direkt rein. Die Geschichte heute ist ein echtes Projekt, kein Hochglanz-Demo-Setup.
+Kurz zu mir, dann direkt rein. Die Geschichte heute ist ein echtes Projekt, kein Hochglanz-Demo-Setup.
 
 Wir starten bei der Ausgangslage, klären dann ein paar Grundlagen, damit alle auf demselben Stand sind: Was ist eigentlich ein Modell, was ist Inference. Dann die Frage, die sich jeder zuerst stellen sollte: Passt das Modell überhaupt auf meine Hardware? Danach Betrieb mit vLLM, das Gateway mit LiteLLM und am Ende ein Fazit, wann sich das lohnt.
 
 Kurze Frage ins Publikum: Wer hat schon mal selbst ein Modell gehostet? Und wer nutzt nur Cloud-APIs?
 :::
-
-{{< include ../_gemeinsam/vorstellung.qmd >}}
 
 # Ausgangslage
 
@@ -92,6 +90,8 @@ Darüber laufen 4,5 bis 5 Milliarden Tokens im Monat. Und die GPUs sind noch nic
 
 Was ein Token eigentlich ist, klären wir gleich. Am Ende schauen wir, was dieser Verbrauch in der Cloud gekostet hätte.
 :::
+
+{{< include ../_gemeinsam/vorstellung.qmd >}}
 
 # Grundlagen
 
