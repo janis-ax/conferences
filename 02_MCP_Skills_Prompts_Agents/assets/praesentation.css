@@ -1,0 +1,106 @@
+/* Ergänzungen für Vortrag 2. Das Grundlayout kommt aus _extensions/ordix. */
+
+/* ===== Platzhalter für Inhalte, die noch fehlen ===== */
+.reveal .todo {
+  display: inline-block;
+  border: 1.5px dashed #FF6800;
+  color: #D84400;
+  padding: 0 8px;
+  font-size: 0.8em;
+}
+
+/* ===== Logos oben rechts unter dem ORDIX Logo ===== */
+.reveal .slides section.slide > .slide-logos {
+  position: absolute;
+  right: 62px;
+  top: 112px;
+  display: flex;
+  gap: 22px;
+  align-items: center;
+  z-index: 1;
+}
+.reveal .slide-logos img { height: 40px; width: auto; margin: 0; }
+.reveal img.logo { height: 34px; width: auto; margin: 0; vertical-align: middle; }
+
+/* ===== Große Zahl und Kernaussage ===== */
+.reveal .bignum { font-size: 120px; font-weight: 700; color: #FF6800; line-height: 1; margin: 40px 0 18px 0; }
+.reveal .bigtext { font-size: 54px; font-weight: 700; line-height: 1.1; margin: 50px 0 24px 0; max-width: 950px; }
+.reveal .lead { font-size: 26px; max-width: 900px; }
+
+/* ===== Karten im Raster ===== */
+.reveal .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
+.reveal .grid2 .ordix-card { font-size: 21px; }
+.reveal .grid2 .ordix-card h3 { font-size: 23px; margin: 0 0 6px 0; color: #13253C; text-transform: none; }
+.reveal .grid2 .ordix-card p { margin: 0; font-size: 20px; }
+.reveal .grid2 .ordix-card.accent { background: #FFF3EB; }
+
+/* ===== Tool-Übersicht als Schichten ===== */
+.reveal .stack { display: flex; gap: 22px; align-items: stretch; }
+.reveal .stack-main { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+.reveal .layer {
+  display: flex; align-items: center; gap: 16px;
+  border: 1.5px solid #13253C; padding: 10px 18px; font-size: 20px; background: #fff;
+}
+.reveal .layer b { min-width: 170px; }
+.reveal .layer.clients { border-style: dashed; color: #5B6B7F; }
+.reveal .layer.gateway { border-color: #FF6800; background: #FFF3EB; }
+.reveal .layer.base { background: #DCEEF4; }
+.reveal .stack-side {
+  width: 260px; display: flex; flex-direction: column; justify-content: center; gap: 10px;
+  border: 1.5px solid #13253C; padding: 14px 18px; font-size: 19px;
+}
+
+/* ===== Animationen ===== */
+.reveal .anim { width: 1100px; }
+.reveal .anim-svg { display: block; overflow: visible; }
+.reveal .anim-svg text { font-family: "Open Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif; }
+.reveal .anim-controls {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px;
+  margin-top: 8px; font-size: 16px; color: #13253C;
+}
+.reveal .anim-controls label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.reveal .anim-controls input[type=range] { width: 140px; }
+.reveal .anim-controls input[type=checkbox] { accent-color: #FF6800; width: 18px; height: 18px; }
+.reveal .anim-label { font-weight: 700; margin-left: 6px; }
+.reveal .ordix-btn.small { font-size: 15px; padding: 5px 12px; }
+.reveal .ordix-btn.ghost.active { background: #13253C; color: #fff; }
+
+
+/* ===== Begriffs-Wand ===== */
+.reveal .buzz, .reveal .buzz p { margin: 0; display: flex; flex-wrap: wrap; gap: 12px 14px; align-items: center; max-width: 1100px; margin: 8px 0 22px 0; }
+.reveal .buzz span { white-space: nowrap; line-height: 1.3; border: 1.5px solid #B0B8C4; color: #5B6B7F; padding: 4px 14px; font-size: 20px; }
+.reveal .buzz span.s2 { font-size: 26px; padding: 6px 18px; }
+.reveal .buzz span.s3 { font-size: 32px; padding: 8px 22px; }
+.reveal .buzz span.hot { border-color: #FF6800; color: #13253C; background: #FFF3EB; font-weight: 700; }
+
+/* ===== Leiter: Wann brauche ich was ===== */
+.reveal .ladder { display: flex; flex-direction: column; gap: 8px; font-size: 19px; }
+.reveal .rung { display: grid; grid-template-columns: 230px 1fr 1fr; gap: 0; border: 1.5px solid #13253C; background: #fff; }
+.reveal .rung > div { padding: 9px 16px; line-height: 1.3; }
+.reveal .rung .rung-name { background: #13253C; color: #fff; font-weight: 700; display: flex; align-items: center; }
+.reveal .rung .rung-name small { display: block; font-weight: 400; font-size: 14px; color: #AEC3E0; }
+.reveal .rung .rung-up { color: #5B6B7F; border-left: 1px dashed #B0B8C4; }
+.reveal .rung.agent .rung-name { background: #FF6800; }
+.reveal .ladder-head { display: grid; grid-template-columns: 230px 1fr 1fr; font-size: 15px; color: #5B6B7F; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; }
+.reveal .ladder-head div { padding: 0 16px; }
+
+/* ===== Entscheidungshilfe ===== */
+.reveal .dec { width: 1000px; min-height: 330px; }
+.reveal .dec-trail { font-size: 16px; color: #5B6B7F; margin-bottom: 16px; }
+.reveal .dec-q { font-size: 34px; font-weight: 700; line-height: 1.2; margin-bottom: 26px; min-height: 84px; }
+.reveal .dec-btns { display: flex; gap: 12px; margin-top: 16px; }
+.reveal .dec-btns .ordix-btn { font-size: 22px; padding: 10px 28px; }
+.reveal .dec-res { border: 2px solid #FF6800; background: #FFF3EB; padding: 18px 26px; }
+.reveal .dec-lbl { font-size: 16px; color: #5B6B7F; font-weight: 700; text-transform: uppercase; }
+.reveal .dec-r { font-size: 38px; font-weight: 700; margin: 2px 0 8px 0; }
+.reveal .dec-w { font-size: 22px; }
+.reveal .dec-e { font-size: 19px; color: #5B6B7F; margin-top: 10px; }
+
+/* ===== Quellen ===== */
+.reveal .quellen { font-size: 18px; line-height: 1.35; }
+.reveal .quellen li { margin-bottom: 5px; }
+.reveal .quellen small { color: #5B6B7F; font-size: 15px; }
+
+/* ===== Code und Fußnoten ===== */
+.reveal pre code { font-size: 19px; line-height: 1.4; max-height: none; }
+.reveal .anim + p.muted { margin-top: 26px; }

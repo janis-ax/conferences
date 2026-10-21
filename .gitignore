@@ -16,7 +16,7 @@
 # Freigegebene Vorträge: Zeile erst einkommentieren, wenn der Vortrag
 # ausdrücklich freigegeben ist (lokal getestet, keine kritischen Informationen).
 !/01_Mein_Modell_meine_Hardware_meine_Regeln/
-# !/02_MCP_Skills_Prompts_Agents/
+!/02_MCP_Skills_Prompts_Agents/
 # !/03_MCP_at_Oracle_Cloud/
 
 # Auch in freigegebenen Ordnern nie versionieren

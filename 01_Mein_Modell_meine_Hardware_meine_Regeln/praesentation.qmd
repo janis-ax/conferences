@@ -342,7 +342,7 @@ Quellen: Model Cards bei Hugging Face. Bei DeepSeek stehen 552 Mrd. für das Bac
 <div class="gb-row fragment"><span class="gb-label">Qwen3.8-Flash-Next (BF16)</span><div class="gb-bar" style="width:211px"></div><span class="gb-value">176 Mrd. Parameter ≈ 350 GB</span></div>
 <div class="gb-row fragment"><span class="gb-label">Qwen3.8-2.4T (BF16)</span><div class="gb-bar" style="width:480px"></div><span class="gb-value">≈ 4,8 TB (Balken gekürzt)</span></div>
 
-<p class="fragment" style="margin-top:28px">Die tollen Benchmarks im Netz kommen oft von genau diesen Riesen. Für dich zählt, was auf <strong>deine</strong> Karten passt.</p>
+<p class="fragment" style="margin-top:28px">Die tollen Benchmarks im Netz kommen oft von genau diesen Riesen. Für euch zählt, was auf <strong>eure</strong> Karten passt.</p>
 
 ::: notes
 (ca. 2 Min.)
@@ -479,7 +479,7 @@ Die Größen in der Animation sind Beispielwerte. TODO: echte Werte einsetzen (w
 <div class="ordix-card"><h3>Ausprobieren</h3><p>Ein MacBook reicht. Kleine Modelle, ein Nutzer, llama.cpp oder Ollama</p></div>
 <div class="ordix-card"><h3>Für ein Team</h3><p>Ein Server mit GPUs. Der VRAM entscheidet: Gewichte plus KV Cache</p></div>
 <div class="ordix-card accent"><h3>Bei uns</h3><p>Zwei H100 NVL, dazu viel Arbeitsspeicher für die ausgelagerte N-Gramm-Tabelle</p></div>
-<div class="ordix-card"><h3>Konkret für dein Projekt?</h3><p>Komm nach dem Vortrag zu mir. Das hängt an Modell, Kontext und Nutzerzahl</p></div>
+<div class="ordix-card"><h3>Konkret für euer Projekt?</h3><p>Kommt nach dem Vortrag zu mir. Das hängt an Modell, Kontext und Nutzerzahl</p></div>
 </div>
 
 ::: notes
@@ -501,7 +501,7 @@ Wer eine konkrete Frage hat: nach dem Vortrag ansprechen.
 - Heute laufen bei uns **Qwen3.8-Flash-Next** und **Qwen3.8-27B** <span class="todo">Mistral noch im Betrieb?</span>
 - **Vision**: Beide Qwen-Modelle verstehen Bilder und Scans <span class="todo">Beispiel aus dem Projekt</span>
 - **Thinking**: Das Modell denkt erst nach, dann antwortet es. Kostet mehr Tokens, hilft bei schweren Fragen. Beim 27B ist es standardmäßig an und lässt sich pro Anfrage abschalten
-- Mehrere Modelle heißt: Spätestens jetzt brauchst du **eine zentrale Tür**
+- Mehrere Modelle heißt: Spätestens jetzt braucht ihr **eine zentrale Tür**
 
 ::: notes
 (ca. 2 Min.)
@@ -804,7 +804,7 @@ Kurz Pause machen.
 - **Model Lifecycle**: Modelle austauschen ist schwerer als gedacht. Aliase helfen, aber Kontextlänge und Co. ändern sich mit
 - **Sizing**: Die Balance zwischen max-model-len und parallelen Anfragen. Die echte Last kommt erst noch
 - **Das Serving selbst** war dagegen relativ unkompliziert. Bei wenig Last
-- **Benchmarks sind nicht deine Hardware, und der KV Cache frisst den Speicher**
+- **Benchmarks sind nicht eure Hardware, und der KV Cache frisst den Speicher**
 - **Governance kommt schneller als gedacht**: Keys, Guardrails, wer darf welche Tools
 
 ::: notes
