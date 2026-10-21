@@ -6,7 +6,9 @@ lang: de
 format:
   ordix-revealjs:
     footer: "Mein Modell, meine Hardware, meine Regeln, ORDIX AG, Janis Ax, 17.11.2026"
-    css: assets/praesentation.css
+    css:
+      - assets/praesentation.css
+      - ../_gemeinsam/vorstellung.css
     include-after-body: assets/animationen.html
 ---
 
@@ -22,12 +24,14 @@ format:
 ::: notes
 (ca. 1 Min.)
 
-Kurz zu mir, dann direkt rein. Die Geschichte heute ist ein echtes Projekt, kein Hochglanz-Demo-Setup.
+Gleich kommt eine kurze Vorstellung von mir und von ORDIX, dann direkt rein. Die Geschichte heute ist ein echtes Projekt, kein Hochglanz-Demo-Setup.
 
 Wir starten bei der Ausgangslage, klären dann ein paar Grundlagen, damit alle auf demselben Stand sind: Was ist eigentlich ein Modell, was ist Inference. Dann die Frage, die sich jeder zuerst stellen sollte: Passt das Modell überhaupt auf meine Hardware? Danach Betrieb mit vLLM, das Gateway mit LiteLLM und am Ende ein Fazit, wann sich das lohnt.
 
 Kurze Frage ins Publikum: Wer hat schon mal selbst ein Modell gehostet? Und wer nutzt nur Cloud-APIs?
 :::
+
+{{< include ../_gemeinsam/vorstellung.qmd >}}
 
 # Ausgangslage
 
@@ -58,7 +62,7 @@ Und wir brauchen davon gar nicht viel: Für das große Modell, das ich gleich ze
 
 - Ziel: Die Kolleginnen und Kollegen sollen mit KI arbeiten, ohne dass Daten rausgehen
 - Die Oberfläche: eine **Eigenentwicklung**
-- Dahinter: ein Mistral-Modell <span class="todo">genauer Modellname</span>
+- Dahinter: **Mistral Small 3.1** (24 Mrd. Parameter)
 - Um Model Serving ging es da noch gar nicht. Erst mal sollte es einfach laufen
 
 ::: notes
@@ -66,11 +70,11 @@ Und wir brauchen davon gar nicht viel: Für das große Modell, das ich gleich ze
 
 Am Anfang ging es gar nicht um Model Serving oder Architektur. Die Frage war: Können die Leute hier mit KI arbeiten, ohne dass Daten rausgehen?
 
-Also haben wir einen Chatbot gebaut. Die Oberfläche ist eine Eigenentwicklung, dahinter lief ein Mistral-Modell.
+Also haben wir einen Chatbot gebaut. Die Oberfläche ist eine Eigenentwicklung, dahinter lief Mistral Small 3.1 mit 24 Milliarden Parametern.
 
 Gateway, Keys, Guardrails, mehrere Modelle, das kam alles erst später, als klar war: Das wird genutzt.
 
-TODO: Modellname ergänzen. Und worauf lief Mistral am Anfang?
+TODO: Worauf lief Mistral am Anfang?
 :::
 
 ## Heute: LiteLLM ist der AI-Proxy für die ganze Behörde {.hex}
@@ -309,7 +313,7 @@ Welches Modell passt eigentlich auf meine Karten?
 | Modell | Größe | Lizenz |
 |--------|-------|--------|
 | **Qwen3.8-27B** (bei uns) | 27 Mrd., dicht | Apache 2.0 |
-| **Qwen3.8-Flash-Next** (bei uns) | 176 Mrd. gesamt, 6 Mrd. aktiv | <span class="todo">prüfen</span> |
+| **Qwen3.8-Flash-Next** (bei uns) | 176 Mrd. gesamt, 6 Mrd. aktiv | Qwen Community License 1.0 |
 | Gemma 4 (Google) | 31 Mrd., dicht | Apache 2.0 |
 | Mistral Small 4 | 119 Mrd. gesamt, 6,5 Mrd. aktiv | Apache 2.0 |
 | DeepSeek V4.1-Flash | 552 Mrd. gesamt, 8 bis 16 Mrd. aktiv | MIT |
@@ -328,7 +332,7 @@ Wichtig bei der Auswahl: Die Lizenz prüfen, und beim Vergleich zwischen "gesamt
 
 Der Markt bewegt sich schnell, in ein paar Monaten sieht die Liste anders aus. Genau deshalb brauchen wir später Aliase im Gateway.
 
-Quellen: Model Cards bei Hugging Face. Bei DeepSeek stehen 552 Mrd. für das Backbone, dazu kommt ein Engram-Speicher. TODO: Lizenz von Qwen3.8-Flash-Next in der Model Card prüfen. Vor dem Vortrag Liste nochmal gegen den aktuellen Stand prüfen.
+Quellen: Model Cards bei Hugging Face. Bei DeepSeek stehen 552 Mrd. für das Backbone, dazu kommt ein Engram-Speicher. Die Lizenz von Flash-Next ist die Qwen Community License 1.0, die anderen Modelle sind Apache 2.0 oder MIT. Vor dem Vortrag Liste nochmal gegen den aktuellen Stand prüfen.
 :::
 
 ## Die Benchmark-Falle
@@ -365,7 +369,7 @@ Live durchspielen:
 1. Qwen3.8-27B in BF16 auf einer H100 NVL, 32k Kontext, 16 parallele Anfragen: passt nicht. Die Gewichte sind mit 54 GB kein Problem, aber der KV Cache kommt dazu.
 2. Auf FP8 umschalten: Gewichte halbieren sich, passt.
 3. Zum Vergleich ein dichtes Modell wählen, zum Beispiel 70B: Gleicher Kontext, viel mehr KV Cache pro Token. Das ist der Vorteil der hybriden Qwen-Architektur.
-4. Zum Schluss Flash-Next: einmal mit N-Gramm im RAM, einmal alles im VRAM, und zwei Karten einstellen. So läuft es bei uns.
+4. Zum Schluss Flash-Next: auf FP8 stellen, einmal mit N-Gramm im RAM, einmal alles im VRAM, und zwei Karten einstellen. So läuft es bei uns.
 
 Wichtig: Das ist der schlimmste Fall, alle Anfragen gleichzeitig mit vollem Kontext. In der Praxis hat kaum eine Anfrage den vollen Kontext, und vLLM belegt den Cache in kleinen Blöcken nur nach Bedarf. Bei uns liegt die KV-Cache-Auslastung bei rund 10 %, es ist also viel Luft. TODO: Wert morgen gegen Grafana oder die vLLM-Metriken prüfen.
 
@@ -448,7 +452,7 @@ Rechnen braucht VRAM, Nachschlagen nicht. Darum liegen die N-Gramm-Gewichte im n
 
 Jetzt der Trick, der Flash-Next auf zwei Karten möglich macht.
 
-Das Modell hat neben den normalen Gewichten eine N-Gramm-Tabelle. Laut vLLM Recipe sind das 51 Mrd. Parameter zusätzlich zu den 125 Mrd. des Hauptmodells, aktiv sind pro Token nur 6 Mrd. Das Recipe zeigt als Beispiel acht H100 mit CPU-Offload der Tabelle, mindestens 51 GB Host-Speicher. Bei uns läuft das Modell auf nur zwei H100 NVL, und wir lagern die Tabelle komplett in den Arbeitsspeicher aus. Das funktioniert richtig gut, und es ist ein sehr schnelles Modell. TODO: Quantisierung (FP8?) und Host-Speicher gegen unser Deployment bestätigen.
+Das Modell hat neben den normalen Gewichten eine N-Gramm-Tabelle. Laut vLLM Recipe sind das 51 Mrd. Parameter zusätzlich zu den 125 Mrd. des Hauptmodells, aktiv sind pro Token nur 6 Mrd. Das Recipe zeigt als Beispiel acht H100 mit CPU-Offload der Tabelle, mindestens 51 GB Host-Speicher. Bei uns läuft Qwen3.8-Flash-Next-FP8 auf nur zwei H100 NVL, und wir lagern die Tabelle komplett in den Arbeitsspeicher aus. Das funktioniert richtig gut, und es ist ein sehr schnelles Modell. Mit FP8 sind die 125 Mrd. Parameter des Hauptmodells rund 125 GB, das passt auf zwei Karten mit zusammen 188 GB. TODO: Host-Speicher gegen unser Deployment bestätigen.
 
 Der Unterschied: Mit den normalen Gewichten wird gerechnet, riesige Matrixmultiplikationen, das muss auf der GPU passieren. In der N-Gramm-Tabelle wird pro Token nur nachgeschlagen. Ein paar Zeilen lesen, fertig.
 
@@ -535,7 +539,7 @@ containers:
   - name: vllm
     image: vllm/vllm-openai
     args:
-      - --model=/models/qwen3.8-flash-next
+      - --model=/models/qwen3.8-flash-next-fp8
       - --served-model-name=flash-next
       - --max-model-len=32768
     resources:
