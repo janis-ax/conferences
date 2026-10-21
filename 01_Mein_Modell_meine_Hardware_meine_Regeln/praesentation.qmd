@@ -77,7 +77,7 @@ Gateway, Keys, Guardrails, mehrere Modelle, das kam alles erst später, als klar
 TODO: Worauf lief Mistral am Anfang?
 :::
 
-## Heute: LiteLLM ist der AI-Proxy für die ganze Behörde {.hex}
+## Heute laufen alle KI-Anfragen der Behörde über LiteLLM {.hex}
 
 <div class="bignum">4,5 bis 5 Mrd.</div>
 
@@ -86,7 +86,7 @@ TODO: Worauf lief Mistral am Anfang?
 ::: notes
 (ca. 1 Min.)
 
-Kurzer Sprung nach vorne, damit ihr wisst, wo die Geschichte hinführt. Aus dem Chatbot ist mehr geworden. Heute haben wir LiteLLM als zentralen AI-Proxy für die ganze Behörde. Was LiteLLM genau ist, zeige ich später.
+Kurzer Sprung nach vorne, damit ihr wisst, wo die Geschichte hinführt. Aus dem Chatbot ist mehr geworden. Heute läuft jede KI-Anfrage der Behörde über ein zentrales LiteLLM. Was LiteLLM genau ist, zeige ich später.
 
 Darüber laufen 4,5 bis 5 Milliarden Tokens im Monat. Und die GPUs sind noch nicht ausgelastet, da ist noch Luft nach oben.
 
@@ -425,6 +425,8 @@ vllm serve Qwen/Qwen3.8-27B \
 
 ::::
 
+<p><strong>Bei uns:</strong> Flash-Next-FP8 mit 128k Kontext und 16 parallelen Anfragen, Qwen3.8-27B in FP8 mit maximaler Kontextlänge und 8 parallelen Anfragen.</p>
+
 ::: notes
 (ca. 2 Min.)
 
@@ -436,7 +438,7 @@ Tensor Parallel: Das Modell wird auf mehrere Karten aufgeteilt, wenn es nicht au
 
 KV Cache in FP8: halbiert den Speicher für das Kurzzeitgedächtnis, in der Praxis merkt man das an der Qualität kaum.
 
-Das Beispiel ist allgemein, die Parser-Flags stammen aus dem vLLM Recipe für Qwen3.8 Flash-Next. Vor dem Vortrag gegen die Version prüfen: `vllm serve --help`. TODO: unsere echten Werte aus dem Projekt einsetzen.
+Das Beispiel ist allgemein, die Parser-Flags stammen aus dem vLLM Recipe für Qwen3.8 Flash-Next. Vor dem Vortrag gegen die Version prüfen: `vllm serve --help`. Unsere echten Werte stehen unter dem Beispiel. Flash-Next-FP8: max-model-len 128k, max-num-seqs 16, rund 90 GB Arbeitsspeicher. TODO: Ist das der Speicher für die N-Gramm-Tabelle? Qwen3.8-27B in FP8: maximale Kontextlänge des Modells und 8 parallele Anfragen. TODO: Wert für max-model-len beim 27B nennen.
 
 Das schwierigste Sizing ist die Balance zwischen max-model-len und parallelen Anfragen. Beides frisst KV Cache. Bei uns ist die Last bisher überschaubar, sie wird erst noch kommen. Dann muss das Sizing stimmen.
 :::
@@ -452,7 +454,7 @@ Rechnen braucht VRAM, Nachschlagen nicht. Darum liegen die N-Gramm-Gewichte im n
 
 Jetzt der Trick, der Flash-Next auf zwei Karten möglich macht.
 
-Das Modell hat neben den normalen Gewichten eine N-Gramm-Tabelle. Laut vLLM Recipe sind das 51 Mrd. Parameter zusätzlich zu den 125 Mrd. des Hauptmodells, aktiv sind pro Token nur 6 Mrd. Das Recipe zeigt als Beispiel acht H100 mit CPU-Offload der Tabelle, mindestens 51 GB Host-Speicher. Bei uns läuft Qwen3.8-Flash-Next-FP8 auf nur zwei H100 NVL, und wir lagern die Tabelle komplett in den Arbeitsspeicher aus. Das funktioniert richtig gut, und es ist ein sehr schnelles Modell. Mit FP8 sind die 125 Mrd. Parameter des Hauptmodells rund 125 GB, das passt auf zwei Karten mit zusammen 188 GB. TODO: Host-Speicher gegen unser Deployment bestätigen.
+Das Modell hat neben den normalen Gewichten eine N-Gramm-Tabelle. Laut vLLM Recipe sind das 51 Mrd. Parameter zusätzlich zu den 125 Mrd. des Hauptmodells, aktiv sind pro Token nur 6 Mrd. Das Recipe zeigt als Beispiel acht H100 mit CPU-Offload der Tabelle, mindestens 51 GB Host-Speicher. Bei uns läuft Qwen3.8-Flash-Next-FP8 auf nur zwei H100 NVL, und wir lagern die Tabelle komplett in den Arbeitsspeicher aus. Das funktioniert richtig gut, und es ist ein sehr schnelles Modell. Mit FP8 sind die 125 Mrd. Parameter des Hauptmodells rund 125 GB, das passt auf zwei Karten mit zusammen 188 GB. Der Host-Speicher liegt bei rund 90 GB. TODO: bestätigen, dass das die N-Gramm-Tabelle ist.
 
 Der Unterschied: Mit den normalen Gewichten wird gerechnet, riesige Matrixmultiplikationen, das muss auf der GPU passieren. In der N-Gramm-Tabelle wird pro Token nur nachgeschlagen. Ein paar Zeilen lesen, fertig.
 
@@ -693,7 +695,7 @@ Die Adresse ist ein Beispiel, nicht die echte.
 <div class="grid2">
 <div class="ordix-card accent"><h3>OpenCode</h3><p>Unser Coding-Agent. Open Source wie die Modelle, wird sehr intensiv genutzt</p></div>
 <div class="ordix-card"><h3>IntelliJ</h3><p>Integration direkt in der IDE <span class="todo">welches Plugin?</span></p></div>
-<div class="ordix-card"><h3>Continue</h3><p>Zeitweise genutzt, ebenfalls über das Gateway</p></div>
+<div class="ordix-card"><h3>Alles andere</h3><p>Jedes Tool mit OpenAI-API, zum Beispiel Continue. Was die Teams anbinden, müssen wir als Plattformbetreiber nicht wissen</p></div>
 <div class="ordix-card"><h3>Eigene Programme</h3><p>Die API steckt in Software: Release Notes automatisch erzeugen, Logs mit KI anreichern und auf Fehler hinweisen</p></div>
 </div>
 
@@ -702,13 +704,13 @@ Die Adresse ist ein Beispiel, nicht die echte.
 
 Das ist die Anbindung an die tägliche Arbeit aus dem Abstract. Weil es die OpenAI-API ist, passt alles.
 
-OpenCode ist unser Coding-Agent. Open Source, passt also zum Rest, und wird bei uns sehr intensiv genutzt. In IntelliJ haben wir die Integration in der IDE. Continue haben wir zeitweise genutzt.
+OpenCode ist unser Coding-Agent. Open Source, passt also zum Rest, und wird bei uns sehr intensiv genutzt. In IntelliJ haben wir die Integration in der IDE. Dazu kann jedes Team anbinden, was es will, zum Beispiel Continue. Als Plattformbetreiber ist uns das egal, solange es über den Proxy geht.
 
 Und nicht nur Menschen: Wir bauen die API in eigene Programme ein. Zwei Beispiele: Release Notes werden automatisch generiert. Und Logs werden mit KI angereichert, sie weist dann schon auf Fehler hin.
 
 Alle gehen über denselben Proxy, mit Key und Tracing. Dadurch sieht man auch, wer was nutzt.
 
-TODO: IntelliJ-Plugin nennen. Prüfen, ob Continue noch im Einsatz ist.
+TODO: IntelliJ-Plugin nennen.
 :::
 
 ## Was am Ende da ist
