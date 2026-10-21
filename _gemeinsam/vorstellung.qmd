@@ -1,0 +1,50 @@
+## Wer bin ich eigentlich, und warum stehe ich hier? {.hex}
+
+:::: {.columns .vorstellung}
+
+::: {.column width="30%"}
+<img class="portrait" src="../_gemeinsam/janis-ax.jpg" alt="Janis Ax">
+:::
+
+::: {.column width="70%"}
+**Janis Ax**, Teamleiter DevOps Solutions Team, ORDIX AG
+
+- Seit **2017 bei ORDIX**: vom Dataflow- und Big-Data-Betrieb (Apache NiFi) über DevOps zum **AI-Betrieb**
+- Heute: Open-Source-LLMs auf eigener Hardware betreiben, mit OpenShift, GPUs, vLLM, LiteLLM und Langfuse
+- Ich erzähle heute aus dem **Betrieb**, nicht aus dem Prospekt
+
+<p class="kontakt"><span>LinkedIn</span> <a href="https://www.linkedin.com/in/janis-ax">linkedin.com/in/janis-ax</a><br><span>ORDIX Blog</span> <a href="https://blog.ordix.de/janis-ax">blog.ordix.de/janis-ax</a></p>
+:::
+
+::::
+
+::: notes
+(ca. 1,5 Min.)
+
+So, wer bin ich eigentlich und warum stehe ich hier?
+
+Ich bin Janis, seit 2017 bei ORDIX. Angefangen habe ich im Betrieb von Dataflow- und Big-Data-Plattformen, viel Apache NiFi. Von dort ging es zu DevOps, und inzwischen bin ich beim AI-Betrieb gelandet. Als Teamleiter vom DevOps Solutions Team kümmere ich mich darum, dass Dinge nicht nur im Prototyp laufen, sondern auch montags um 8 Uhr, wenn alle sie nutzen.
+
+Und genau deshalb stehe ich hier: Ich betreibe das, wovon ich rede. Keine Folie in diesem Vortrag kommt aus einem Hochglanz-Prospekt.
+
+Wer nach dem Vortrag weiterlesen oder Kontakt halten möchte: LinkedIn und mein Blog bei ORDIX stehen unten.
+:::
+
+## ORDIX: Wer steckt dahinter?
+
+<div class="grid2">
+<div class="ordix-card accent"><h3>IT-Dienstleister aus Paderborn</h3><p>Seit mehr als 30 Jahren am Markt. Beratung, Betrieb, Entwicklung und Schulung aus einer Hand</p></div>
+<div class="ordix-card"><h3>Daten und KI</h3><p>Big Data, Analytics, Data Science und KI-Plattformen</p></div>
+<div class="ordix-card"><h3>Betrieb und Plattformen</h3><p>Datenbanken, Linux und Unix, Cloud, DevOps. Auch als 24/7 Remote-Betrieb</p></div>
+<div class="ordix-card"><h3>Sicherheit und Entwicklung</h3><p>IT-Security, Softwareentwicklung, agile Transformation und Seminare</p></div>
+</div>
+
+<p class="muted" style="font-size:16px; margin-top:20px">Mehr unter <a href="https://www.ordix.de">ordix.de</a>. Angaben von ordix.de, Stand 21.10.2026.</p>
+
+::: notes
+(ca. 1 Min.)
+
+Kurz zu ORDIX, damit ihr wisst, wo das herkommt. Wir sind ein IT-Dienstleister aus Paderborn, seit über 30 Jahren dabei. Der Schwerpunkt: Daten, Datenbanken und Plattformen. Von der Beratung über die Entwicklung bis zum Betrieb, teilweise rund um die Uhr.
+
+Das passt zu dem, was ich euch heute zeige. KI ist am Ende auch nur ein Dienst, der laufen, abgesichert und überwacht werden muss.
+:::

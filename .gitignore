@@ -6,10 +6,12 @@
 !/.gitignore
 !/.github/
 !/_extensions/
+!/_gemeinsam/
 !/_quarto.yml
 !/index.html
 !/_quarto-dev.yml
 !/strip-notes.lua
+!/_gemeinsam/
 
 # Freigegebene Vorträge: Zeile erst einkommentieren, wenn der Vortrag
 # ausdrücklich freigegeben ist (lokal getestet, keine kritischen Informationen).
