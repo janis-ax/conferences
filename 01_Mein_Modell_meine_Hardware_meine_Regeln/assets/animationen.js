@@ -102,9 +102,6 @@
     });
     inst.sync = function () { play.textContent = inst.playing ? 'Pause' : 'Abspielen'; };
     button(bar, 'Neustart', function () { inst.reset(); inst.playing = true; inst.sync(); }, 'ghost');
-    label(bar, 'Tempo');
-    choice(bar, [{ label: '0,5×', value: 0.5 }, { label: '1×', value: 1 }, { label: '2×', value: 2 }], inst.speed,
-      function (v) { inst.speed = v; });
   }
   // Ohne Autoplay: nach dem Ende anhalten, statt von vorn zu beginnen
   function finish(inst) {
@@ -773,10 +770,8 @@
     // Jedes Modell hat seinen eigenen Tokenizer, die Zahlen weichen also je nach Modell etwas ab.
     var EXAMPLES = [
       { label: 'Bescheid', words: 5, tokens: [['F', 37], ['asse', 5788], [' diesen', 26938], [' Bes', 14599], ['cheid', 36933], [' kurz', 42505], [' zusammen', 27017], ['.', 13]] },
-      { label: 'Englisch', words: 4, tokens: [['Summ', 64614], ['ar', 277], ['ize', 750], [' this', 495], [' notice', 8611], [' briefly', 51088], ['.', 13]] },
       { label: 'Ein Wort', words: 1, tokens: [['Dat', 19298], ['enschutz', 76419], ['grund', 27797], ['ver', 445], ['ordnung', 69459]] },
-      { label: 'Amtsdeutsch', words: 9, tokens: [['Der', 13518], [' Antrag', 119001], ['steller', 47504], [' bean', 27771], ['tragt', 196249], [' die', 1076], [' Verl', 143200], ['änger', 42539], ['ung', 988], [' der', 1227], [' Aufenthalt', 147409], ['ser', 599], ['laub', 23899], ['nis', 12113], ['.', 13]] },
-      { label: 'Datum', words: 4, tokens: [['Termin', 184169], [':', 25], [' ', 220], ['17', 1422], ['.', 13], ['11', 994], ['.', 13], ['202', 1323], ['6', 21], [',', 11], [' ', 220], ['16', 1125], [':', 25], ['00', 504], [' Uhr', 21489]] }
+      { label: 'Amtsdeutsch', words: 9, tokens: [['Der', 13518], [' Antrag', 119001], ['steller', 47504], [' bean', 27771], ['tragt', 196249], [' die', 1076], [' Verl', 143200], ['änger', 42539], ['ung', 988], [' der', 1227], [' Aufenthalt', 147409], ['ser', 599], ['laub', 23899], ['nis', 12113], ['.', 13]] }
     ];
     var COLORS = [[C.navy, C.white], [C.orange, C.white], ['#4F6D8F', C.white], [C.blue, C.navy]];
     var W = 1100, H = 240, s = svg(root, W, H);
@@ -837,6 +832,185 @@
     show(0);
   });
 
+  /* ===== BPE: wie das Wörterbuch des Tokenizers entsteht ===== */
+
+  register('bpe', function (root, inst) {
+    // Spielzeug-Korpus mit erfundenen Häufigkeiten. Die Paare werden hier echt nach BPE gezählt und verschmolzen.
+    var CORPUS = [['die', 8], ['sie', 5], ['diese', 4], ['liebe', 3], ['sieben', 2]];
+    var MERGES = 8;
+    var MONO = 'font-family: Menlo, Consolas, monospace';
+    var CW = 11, CH = 32, GAP = 6, RX0 = 70, VX0 = 620, VW = 480;
+    var W = 1100, H = 345, s = svg(root, W, H);
+
+    text(s, 0, 20, 'Textsammlung', { 'font-size': 16, 'font-weight': 700 });
+    text(s, VX0, 20, 'Häufigste Paare', { 'font-size': 16, 'font-weight': 700 });
+    text(s, VX0, 170, 'Wörterbuch', { 'font-size': 16, 'font-weight': 700 });
+    var info = text(s, 0, 336, '', { 'font-size': 18 });
+    var corpusLayer = el('g', {}, s), pairLayer = el('g', {}, s), vocabLayer = el('g', {}, s), markLayer = el('g', {}, s);
+    var rows, vocab, marks, merge, phase, t, stepTo;
+
+    function width(str) { return 16 + str.length * CW; }
+    function chip(parent, str, fresh) {
+      var g = el('g', {}, parent);
+      var r = el('rect', { height: CH, rx: 4 }, g);
+      var l = el('text', { y: 22, 'text-anchor': 'middle', 'font-size': 18, 'font-weight': 600, style: MONO }, g);
+      l.textContent = str;
+      var c = { s: str, g: g, r: r, l: l, w: width(str), tw: width(str), x: 0, tx: 0, y: 0, fresh: fresh ? 1 : 0 };
+      paint(c);
+      return c;
+    }
+    function paint(c) {
+      // Einzelne Zeichen hell, verschmolzene Tokens dunkel, gerade entstandene orange
+      var single = c.s.length === 1;
+      c.r.setAttribute('fill', c.fresh > 0.5 ? C.orange : single ? C.light : C.navy);
+      c.l.setAttribute('fill', single && c.fresh <= 0.5 ? C.navy : C.white);
+      c.r.setAttribute('width', c.w);
+      c.l.setAttribute('x', c.w / 2);
+      move(c.g, c.x, c.y);
+    }
+    function layoutRow(row) {
+      var x = RX0;
+      row.tokens.forEach(function (c) { c.tx = x; c.tw = width(c.s); c.y = row.y; x += c.tw + GAP; });
+    }
+    function layoutVocab() {
+      var x = VX0, y = 185;
+      vocab.forEach(function (v) {
+        if (x + v.w > VX0 + VW) { x = VX0; y += 54; }
+        v.tx = x; v.y = y; x += v.w + GAP;
+      });
+    }
+    function addVocab(str, fresh) {
+      var v = chip(vocabLayer, str, fresh);
+      v.id = text(v.g, v.w / 2, CH + 15, String(vocab.length), { 'text-anchor': 'middle', 'font-size': 12, fill: C.muted, style: MONO });
+      v.op = fresh ? 0 : 1;
+      vocab.push(v);
+      layoutVocab();
+      v.x = v.tx;
+    }
+    // Paare zählen: jedes Paar benachbarter Tokens, gewichtet mit der Häufigkeit des Wortes
+    function countPairs() {
+      var map = {}, list = [];
+      rows.forEach(function (row) {
+        for (var i = 0; i < row.tokens.length - 1; i++) {
+          var a = row.tokens[i].s, b = row.tokens[i + 1].s, k = a + '|' + b;
+          if (!map[k]) { map[k] = { a: a, b: b, n: 0, order: list.length }; list.push(map[k]); }
+          map[k].n += row.n;
+        }
+      });
+      return list.sort(function (p, q) { return q.n - p.n || p.order - q.order; });
+    }
+    function showPairs(list) {
+      pairLayer.textContent = '';
+      var max = list.length ? list[0].n : 1;
+      list.slice(0, 3).forEach(function (p, i) {
+        var y = 50 + i * 34;
+        text(pairLayer, VX0, y + 15, p.a + ' + ' + p.b, { 'font-size': 17, 'font-weight': 600, style: MONO });
+        var bw = Math.max(6, p.n / max * 250);
+        el('rect', { x: VX0 + 160, y: y, width: bw, height: 20, rx: 3, fill: i === 0 ? C.orange : C.blue }, pairLayer);
+        text(pairLayer, VX0 + 170 + bw, y + 16, p.n + '×', { 'font-size': 16, fill: C.muted });
+      });
+    }
+    function occurrences(p) {
+      var out = [];
+      rows.forEach(function (row) {
+        for (var i = 0; i < row.tokens.length - 1; i++) {
+          if (row.tokens[i].s === p.a && row.tokens[i + 1].s === p.b) { out.push({ row: row, i: i }); i++; }
+        }
+      });
+      return out;
+    }
+    function startCount() {
+      var list = countPairs();
+      showPairs(list);
+      merge.pair = list[0];
+      markLayer.textContent = '';
+      marks = occurrences(merge.pair).map(function (o) {
+        var a = o.row.tokens[o.i], b = o.row.tokens[o.i + 1];
+        return el('rect', { x: a.x - 4, y: a.y - 4, width: b.x + b.w - a.x + 8, height: CH + 8, rx: 6,
+          fill: 'none', stroke: C.orange, 'stroke-width': 3, opacity: 0 }, markLayer);
+      });
+      info.textContent = 'Schritt ' + (merge.k + 1) + ': „' + merge.pair.a + '“ + „' + merge.pair.b + '“ ist das häufigste Paar (' +
+        merge.pair.n + '×).';
+    }
+    function doMerge() {
+      var p = merge.pair, str = p.a + p.b;
+      occurrences(p).reverse().forEach(function (o) {
+        var a = o.row.tokens[o.i], b = o.row.tokens[o.i + 1];
+        var c = chip(corpusLayer, str, true);
+        c.x = a.x; c.w = b.x + b.w - a.x; c.y = a.y;
+        a.g.remove(); b.g.remove();
+        o.row.tokens.splice(o.i, 2, c);
+        layoutRow(o.row);
+      });
+      markLayer.textContent = '';
+      addVocab(str, true);
+      info.textContent = 'Schritt ' + (merge.k + 1) + ': „' + str + '“ wird ein neuer Eintrag im Wörterbuch, Nummer ' + (vocab.length - 1) + '.';
+    }
+    function done() {
+      info.textContent = 'Häufige Wörter sind jetzt ein Token. Das seltene „sieben“ bleibt in drei Stücken.';
+      showPairs([]);
+    }
+
+    inst.reset = function () {
+      corpusLayer.textContent = ''; vocabLayer.textContent = ''; markLayer.textContent = '';
+      vocab = []; marks = []; merge = { k: 0, pair: null }; phase = 'start'; t = 0; stepTo = -1;
+      rows = CORPUS.map(function (w, i) {
+        var y = 40 + i * 54, row = { n: w[1], y: y, tokens: [] };
+        text(corpusLayer, 0, y + 22, w[1] + '×', { 'font-size': 18, fill: C.muted });
+        w[0].split('').forEach(function (ch) { row.tokens.push(chip(corpusLayer, ch)); });
+        layoutRow(row);
+        row.tokens.forEach(function (c) { c.x = c.tx; c.w = c.tw; paint(c); });
+        w[0].split('').forEach(function (ch) {
+          if (!vocab.some(function (v) { return v.s === ch; })) addVocab(ch, false);
+        });
+        return row;
+      });
+      vocab.forEach(paint);
+      showPairs(countPairs());
+      info.textContent = 'Start: Das Wörterbuch kennt nur einzelne Zeichen.';
+    };
+    inst.tick = function (dt) {
+      t += dt;
+      if (phase === 'start' && t > 1.5) { phase = 'count'; t = 0; startCount(); }
+      else if (phase === 'count') {
+        marks.forEach(function (m) { m.setAttribute('opacity', Math.min(1, t / 0.4)); });
+        // Schrittweise: anhalten, sobald das nächste Paar markiert ist
+        if (merge.k === stepTo && t > 0.5) { stepTo = -1; inst.playing = false; if (inst.sync) inst.sync(); }
+        else if (t > 1.6) { phase = 'merge'; t = 0; doMerge(); }
+      } else if (phase === 'merge' && t > 1.4) {
+        merge.k++;
+        t = 0;
+        if (merge.k < MERGES) { phase = 'count'; startCount(); } else { phase = 'end'; done(); }
+      } else if (phase === 'end') {
+        if (!inst.auto) finish(inst);
+        else if (t > 5) inst.reset();
+      }
+      // Kacheln gleiten zusammen, Orange klingt ab, neue Wörterbuch-Einträge blenden ein
+      rows.forEach(function (row) {
+        row.tokens.forEach(function (c) {
+          c.x = approach(c.x, c.tx, dt); c.w = approach(c.w, c.tw, dt);
+          c.fresh = Math.max(0, c.fresh - dt * 0.6);
+          paint(c);
+        });
+      });
+      vocab.forEach(function (v) {
+        v.x = approach(v.x, v.tx, dt);
+        v.op = Math.min(1, v.op + dt * 3);
+        v.fresh = Math.max(0, v.fresh - dt * 0.6);
+        v.g.setAttribute('opacity', v.op);
+        paint(v);
+      });
+    };
+    var bar = controls(root);
+    playButtons(bar, inst);
+    button(bar, 'Nächstes Paar', function () {
+      if (inst.finished) inst.reset();
+      stepTo = phase === 'start' ? 0 : merge.k + 1;
+      inst.playing = true; if (inst.sync) inst.sync();
+    }, 'ghost');
+    inst.reset();
+  });
+
   /* ===== Auslagern: N-Gramm-Tabelle vom VRAM in den RAM ===== */
 
   register('offload', function (root, inst) {
@@ -850,7 +1024,7 @@
     el('rect', { x: 40, y: 50, width: 520, height: 140, rx: 6, fill: C.light, stroke: C.navy, 'stroke-width': 2 }, s);
     text(s, 52, 80, 'GPU: VRAM ' + GB.vram + ' GB (schnell, knapp)', { 'font-size': 16, 'font-weight': 700 });
     el('rect', { x: 700, y: 50, width: 360, height: 140, rx: 6, fill: C.white, stroke: C.navy, 'stroke-width': 2, 'stroke-dasharray': '6 5' }, s);
-    text(s, 712, 80, 'RAM, normaler Heap (langsamer, viel)', { 'font-size': 16, 'font-weight': 700 });
+    text(s, 712, 80, 'Arbeitsspeicher (RAM): langsamer, viel', { 'font-size': 16, 'font-weight': 700 });
 
     var compute = el('rect', { x: VX, y: BY, width: GB.compute * PX, height: BH, fill: C.navy }, s);
     var computeGlow = el('rect', { x: VX, y: BY, width: GB.compute * PX, height: BH, fill: C.orange, opacity: 0 }, s);
@@ -882,8 +1056,8 @@
       var kvGB = GB.vram - GB.compute - GB.ngram * (1 - ease(k));
       kvText.textContent = 'KV Cache ' + fmt(kvGB) + ' GB';
       info.textContent = target
-        ? 'Nachschlagen braucht kaum Bandbreite, das schafft auch der RAM. Der frei gewordene VRAM gehört dem KV Cache (Beispielwerte).'
-        : 'Alles im VRAM: Die Tabelle belegt teuren GPU-Speicher, obwohl pro Token nur ein paar Zeilen gelesen werden (Beispielwerte).';
+        ? 'Nachschlagen braucht kaum Bandbreite, das schafft auch der RAM. Der frei gewordene VRAM gehört dem KV Cache.'
+        : 'Alles im VRAM: Die Tabelle belegt teuren GPU-Speicher, obwohl pro Token nur ein paar Zeilen gelesen werden.';
     }
     function spawn() {
       var d = { node: el('circle', { r: 6, fill: C.navy }, layer), t: 0, row: 4 + Math.random() * (BH - 12) };
@@ -924,6 +1098,68 @@
     render();
   });
 
+  /* ===== Referentenansicht und Beamer synchron halten ===== */
+  // Reveal gleicht nur Folie und Fragment ab. Bedienung in den Animationen (Buttons,
+  // Regler, Häkchen, Klicks auf Grafiken) geht zusätzlich über einen BroadcastChannel
+  // an alle anderen Fenster derselben Seite und wird dort nachgespielt.
+  function setupSync(roots) {
+    if (!window.BroadcastChannel) return;
+    var ch;
+    try { ch = new BroadcastChannel('doag-anim-' + location.pathname); } catch (e) { return; }
+    var applying = false;
+    function pathOf(root, node) {
+      var p = [];
+      while (node && node !== root) {
+        var par = node.parentNode;
+        if (!par || !par.children) return null;
+        p.unshift(Array.prototype.indexOf.call(par.children, node));
+        node = par;
+      }
+      return node === root ? p : null;
+    }
+    function resolve(root, p) {
+      var n = root;
+      for (var i = 0; i < p.length; i++) { n = n.children[p[i]]; if (!n) return null; }
+      return n;
+    }
+    function send(i, root, e, extra) {
+      if (applying) return;
+      var p = pathOf(root, e.target);
+      if (!p) return;
+      var m = { i: i, p: p };
+      for (var k in extra) m[k] = extra[k];
+      try { ch.postMessage(m); } catch (err) {}
+    }
+    roots.forEach(function (root, i) {
+      root.addEventListener('click', function (e) {
+        // Eingabefelder und ihre Beschriftungen laufen über die Wert-Nachrichten unten
+        if (e.target.tagName === 'INPUT' || e.target.closest('label')) return;
+        send(i, root, e, { t: 'click' });
+      }, true);
+      root.addEventListener('input', function (e) {
+        if (e.target.type === 'range') send(i, root, e, { t: 'value', v: e.target.value });
+      }, true);
+      root.addEventListener('change', function (e) {
+        if (e.target.type === 'checkbox') send(i, root, e, { t: 'value', c: e.target.checked });
+      }, true);
+    });
+    ch.onmessage = function (ev) {
+      var m = ev.data, root = roots[m.i];
+      if (!root || !m.p) return;
+      var n = resolve(root, m.p);
+      if (!n) return;
+      applying = true;
+      try {
+        if (m.t === 'click') {
+          n.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        } else if (m.t === 'value') {
+          if (n.type === 'range') { n.value = m.v; n.dispatchEvent(new Event('input', { bubbles: true })); }
+          else if (n.type === 'checkbox') { n.checked = m.c; n.dispatchEvent(new Event('change', { bubbles: true })); }
+        }
+      } finally { applying = false; }
+    };
+  }
+
   /* ===== Registrierung und Takt ===== */
 
   function visibility() {
@@ -935,7 +1171,7 @@
     document.querySelectorAll('.anim[data-anim]').forEach(function (root) {
       var factory = factories[root.getAttribute('data-anim')];
       if (!factory) return;
-      var inst = { visible: false, section: root.closest('section'), speed: 1, finished: false };
+      var inst = { root: root, visible: false, section: root.closest('section'), speed: parseFloat(root.getAttribute('data-speed')) || 1, finished: false };
       inst.auto = root.getAttribute('data-autoplay') !== 'false';
       inst.playing = inst.auto;
       factory(root, inst);
@@ -959,6 +1195,7 @@
       instances.push(inst);
     });
     visibility();
+    setupSync([].slice.call(document.querySelectorAll('.anim[data-anim]')));
     var last = performance.now();
     requestAnimationFrame(function frame(now) {
       var dt = Math.min(0.05, (now - last) / 1000);
