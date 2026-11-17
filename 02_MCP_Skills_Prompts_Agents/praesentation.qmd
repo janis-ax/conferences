@@ -12,22 +12,30 @@ format:
     include-after-body: assets/animationen.html
 ---
 
-## Agenda {.agenda}
+## Was braucht ihr wirklich?
 
-- Ausgangslage
-- Die Bausteine
-- Wann brauche ich was?
-- Risiken im Betrieb
-- Empfehlungen und Fazit
+<div class="grid3">
+<div class="ordix-card"><h3><span class="nr">1</span>Die Bausteine</h3><p>Prompt, Skill, Tool und MCP, Agent</p><p><strong>Kontext:</strong> wo alles landet</p><p><strong>Harness:</strong> alles um das Modell herum</p></div>
+<div class="ordix-card"><h3><span class="nr">2</span>Wann brauche ich was?</h3><p><strong>Die Leiter:</strong> die unterste Stufe, die reicht</p><p>Fünf Fragen als Faustregel</p><p>Beispiele aus dem Betrieb</p></div>
+<div class="ordix-card"><h3><span class="nr">3</span>Risiken im Betrieb</h3><p><strong>Lethal Trifecta:</strong> die gefährliche Dreierkombination</p><p>Rechte, Freigaben, Mitschreiben</p></div>
+</div>
 
 ::: notes
-(ca. 1 Min., der ganze Vortrag dauert ca. 35 Min., danach Fragen)
+(ca. 1,5 Min., der ganze Vortrag dauert ca. 35 Min., danach Fragen)
 
-Kurz zum Plan. Ich beantworte eine Frage, die mir im Alltag ständig begegnet: Was davon brauche ich eigentlich?
+Ich beantworte heute eine Frage, die mir im Alltag ständig begegnet: Was davon brauche ich eigentlich? Dafür gehen wir drei Schritte.
 
-Wir fangen mit dem Wörterchaos an. Dann erkläre ich die fünf Bausteine, jeweils mit einem Bild und einem Beispiel. Danach der wichtigste Teil: Wann nehme ich was? Da gibt es am Ende eine einfache Faustregel. Zum Schluss ein Blick auf die Risiken, denn je mehr Rechte ein Agent hat, desto mehr kann schiefgehen.
+Erstens die Bausteine. Was steckt hinter Prompt, Skill, MCP und Agent, jeweils mit einem Bild und einem Beispiel? Dazu zwei Begriffe, die alles zusammenhalten: der Kontext und das Harness.
 
-Ihr bekommt das Rüstzeug, um bei jedem neuen Buzzword in zwei Minuten einzuordnen, ob es euch etwas angeht.
+Zweitens der wichtigste Teil: Wann nehmt ihr was? Dafür gibt es eine Leiter und eine einfache Faustregel.
+
+Drittens die Risiken. Je mehr Rechte ein Agent hat, desto mehr kann schiefgehen.
+
+Oben auf den Folien seht ihr immer, wo wir gerade sind. Vorher kurz zum Wörterchaos, am Ende meine Empfehlungen.
+
+Was heute nicht dran ist: wie man die Modelle selbst betreibt. Das ist mein anderer Vortrag.
+
+Danach könnt ihr bei jedem neuen Buzzword in zwei Minuten einordnen, ob es euch etwas angeht.
 
 Kurze Frage ins Publikum: Wer hat schon einen MCP-Server benutzt? Wer hat schon einmal einen Skill geschrieben? Wer lässt einen Agenten Code schreiben?
 :::
@@ -49,7 +57,7 @@ Zu viele Wörter, zu wenig Ordnung
 <p class="fragment lead" style="max-width:1100px">Dahinter stecken im Kern <strong>vier Dinge</strong>: <span class="orange">Text</span> (Prompt), <span class="orange">Wissen</span> (Skill, RAG), <span class="orange">Werkzeuge</span> (Tool, MCP) und <span class="orange">eine Schleife</span> (Agent). Dazu gleich mehr.</p>
 
 ::: notes
-(ca. 1,5 Min.)
+(ca. 1 Min.)
 
 Das Abstract beginnt mit dem Buzzword-Problem, und ich glaube, jeder von euch kennt das. Jede Woche ein neues Framework, jede Demo ist die Revolution. Auf der Folie sind die vier aus dem Titel groß, dazu ein paar Begriffe, die euch auch schon begegnet sind.
 
@@ -66,7 +74,15 @@ TODO: eigene Anekdote einbauen: Wann habt ihr zuletzt etwas Großes gebaut, und 
 
 Was steckt hinter den Wörtern?
 
+::: notes
+(ca. 0,5 Min.)
+
+Wir gehen die Bausteine einzeln durch, von unten nach oben. Bei jedem achten wir auf eine Frage: Was kostet das an Kontext? Daraus ergibt sich nachher die Leiter.
+:::
+
 ## Das Modell: Text rein, Text raus
+
+<div class="weg"><span class="on">1 Die Bausteine</span><span>2 Wann brauche ich was?</span><span>3 Risiken</span></div>
 
 - Ein Modell kann genau eins: **aus Text neuen Text machen**
 - Es kennt nur sein **Training**. Eure Firma, eure Tickets, der Server von gestern: unbekannt
@@ -86,14 +102,14 @@ Alles, was das Modell wissen oder tun soll, muss im Kontext stehen. Prompt, Skil
 
 ## Alles landet im Kontext
 
-<div class="anim" data-anim="kontext"></div>
+<div class="weg"><span class="on">1 Die Bausteine</span><span>2 Wann brauche ich was?</span><span>3 Risiken</span></div>
 
-<p class="muted" style="font-size:15px; margin-top:18px">Demowerte. Je nach Modell sind es 32k bis über 1 Mio. Tokens.</p>
+<div class="anim" data-anim="kontext"></div>
 
 ::: notes
 (ca. 2 Min.)
 
-Hier seht ihr den Kontext als Balken. Das Fenster ist begrenzt, und alles, was ihr dem Modell mitgebt, braucht darin Platz. Probiert es aus.
+Hier seht ihr den Kontext als Balken. Alle Werte sind Demowerte, je nach Modell sind es 32k bis über 1 Mio. Tokens. Das Fenster ist begrenzt, und alles, was ihr dem Modell mitgebt, braucht darin Platz. Probiert es aus.
 
 System-Prompt und euer eigener Prompt sind klein. Jetzt schaltet 10 Skills dazu: Das sind nur die Kurzbeschreibungen, kaum sichtbar. Dann ein MCP-Server mit vielen Tools: Plötzlich ist ein Viertel weg, bevor irgendjemand etwas gefragt hat. Dokumente, Gesprächsverlauf, Zwischenergebnisse eines Agenten: schon ist das Fenster voll.
 
@@ -105,6 +121,8 @@ Merkt euch den Satz: Jeder Baustein kostet Kontext. Deshalb nimmt man nicht alle
 :::
 
 ## Prompt: die einfachste Stufe
+
+<div class="weg"><span class="on">1 Die Bausteine</span><span>2 Wann brauche ich was?</span><span>3 Risiken</span></div>
 
 :::: {.columns}
 
@@ -144,7 +162,7 @@ Commits:
 Rolle, Aufgabe, Format, Beispiel. **Ein Prompt ist nur Text.** Er ist die billigste Stufe und löst erstaunlich viel.
 
 ::: notes
-(ca. 1,5 Min.)
+(ca. 1 Min.)
 
 Der erste Baustein ist der Prompt. Und ich sage bewusst: Der löst mehr, als viele denken.
 
@@ -160,6 +178,8 @@ Kleiner Einschub RAG, weil es im Abstract steht: RAG heißt, passende Textstück
 :::
 
 ## Skill: eine Anleitung zum Wiederverwenden
+
+<div class="weg"><span class="on">1 Die Bausteine</span><span>2 Wann brauche ich was?</span><span>3 Risiken</span></div>
 
 :::: {.columns}
 
@@ -209,30 +229,34 @@ Ein echtes Beispiel aus diesem Projekt: Diese Folien wurden mit einem Skill gepr
 
 ## Skill im Betrieb: erst lesen, dann laden
 
-<div class="anim" data-anim="skill"></div>
+<div class="weg"><span class="on">1 Die Bausteine</span><span>2 Wann brauche ich was?</span><span>3 Risiken</span></div>
 
-<p class="muted" style="font-size:15px">Die Token-Angaben sind Beispielwerte. Das Prinzip heißt Progressive Disclosure: nur laden, was gerade nötig ist.</p>
+<div class="anim fragment" data-anim="skill" data-autoplay="false"></div>
+
+<p class="muted" style="font-size:15px">Das Prinzip heißt Progressive Disclosure: nur laden, was gerade nötig ist.</p>
 
 ::: notes
-(ca. 1,5 Min.)
+(ca. 1 Min.)
 
 Die Animation zeigt, warum Skills so günstig sind. Links der Ordner auf der Platte, rechts der Kontext des Modells.
 
 Schritt eins: Beim Start liegt nur die Beschreibung im Kontext. Etwa hundert Tokens. Schritt zwei: Ihr fragt nach Release Notes, und das Modell erkennt: Dazu passt der Skill. Schritt drei: Jetzt erst wird die Anleitung geladen. Schritt vier: Das Skript läuft auf dem Rechner. Wichtig: Das Skript selbst steht nie im Kontext, nur sein Ergebnis.
 
-Zum Abspielen: Die Animation startet mit dem nächsten Klick, oder über den Button.
+Die Animation startet mit dem nächsten Klick. Die Token-Angaben sind Beispielwerte.
 
 Der Unterschied zu einem langen System-Prompt: Der steht immer drin, bei jeder Frage, auch wenn ihr gerade über etwas ganz anderes redet. Der Skill nur, wenn er gebraucht wird.
 :::
 
 ## Tool: das Modell bittet, die App führt aus
 
+<div class="weg"><span class="on">1 Die Bausteine</span><span>2 Wann brauche ich was?</span><span>3 Risiken</span></div>
+
 <p style="max-width:1100px; margin:0 0 4px 0">Ein <strong>Tool</strong> ist eine Funktion mit Name, Beschreibung und Parametern. Das Modell darf sie anfordern, mehr nicht.</p>
 
 <div class="anim fragment" data-anim="toolloop" data-autoplay="false"></div>
 
 ::: notes
-(ca. 2,5 Min.)
+(ca. 2 Min.)
 
 Der dritte Baustein: Tools. Die Animation startet mit dem nächsten Klick.
 
@@ -248,6 +272,8 @@ Das Beispiel mit den Tickets ist ausgedacht.
 :::
 
 ## MCP: ein Stecker statt vieler Kabel
+
+<div class="weg"><span class="on">1 Die Bausteine</span><span>2 Wann brauche ich was?</span><span>3 Risiken</span></div>
 
 <div class="anim" data-anim="mcp"></div>
 
@@ -273,14 +299,16 @@ Praxisbeispiel: der MCP-Server für die Oracle Cloud. Mehr dazu in meinem Vortra
 
 ## Agent: Workflow oder Schleife?
 
-<div class="anim" data-anim="agent"></div>
+<div class="weg"><span class="on">1 Die Bausteine</span><span>2 Wann brauche ich was?</span><span>3 Risiken</span></div>
 
-<p class="muted" style="font-size:15px">Unterscheidung nach Anthropic, "Building effective agents". Beispiel und Zahlen im Bild sind Demowerte.</p>
+<div class="anim fragment" data-anim="agent" data-autoplay="false"></div>
 
 ::: notes
-(ca. 2,5 Min.)
+(ca. 2 Min.)
 
-Der vierte Baustein, der größte Hype: Agenten. Ich nehme die Definition von Anthropic, weil sie sauber trennt.
+Der vierte Baustein, der größte Hype: Agenten. Ich nehme die Definition von Anthropic aus Building effective agents (Dezember 2024), weil sie sauber trennt. Beispiel und Zahlen in der Animation sind Demowerte.
+
+Die Animation startet mit dem nächsten Klick, zuerst im Modus Workflow.
 
 Ein Workflow ist ein fester Ablauf im Code. Das Modell füllt einzelne Schritte, zum Beispiel: Logs holen, KI fasst zusammen, Ticket anlegen. Das ist links in der Animation. Immer drei Schritte, ein Aufruf des Modells. Planbar, günstig, leicht zu testen.
 
@@ -293,11 +321,62 @@ Und die wichtigste Empfehlung aus demselben Beitrag: Sucht die einfachste Lösun
 Aus unserem Alltag: Unser Coding-Agent OpenCode ist ein echter Agent. Er liest Dateien, ändert sie, startet Tests, und wird intensiv genutzt. Die Release Notes dagegen sind ein Workflow, kein Agent. Der Ablauf steht fest.
 :::
 
+## Das Harness: alles um das Modell herum
+
+<div class="weg"><span class="on">1 Die Bausteine</span><span>2 Wann brauche ich was?</span><span>3 Risiken</span></div>
+
+<div class="anim fragment" data-anim="harness" data-autoplay="false"></div>
+
+::: notes
+(ca. 2 Min.)
+
+Jetzt kommt ein Begriff, den ich für den wichtigsten des ganzen Vortrags halte: das Harness. Harness heißt wörtlich Geschirr, wie beim Pferd. Das Modell ist das Pferd, das Harness ist alles, womit man es einspannt, damit es nützliche Arbeit leistet.
+
+Die Animation startet mit dem nächsten Klick und baut das Harness von innen nach außen auf.
+
+Ganz innen das Modell: Text rein, Text raus. Dann die Schleife: Das Harness ruft das Modell immer wieder auf, bis die Aufgabe erledigt ist. Das haben wir vorhin beim Agenten gesehen. Dann die Tools: Dateien lesen und schreiben, Befehle ausführen, suchen, und über MCP weitere Systeme. Dann die Verwaltung des Kontexts: Was kommt in den Kontext, was wird gekürzt, wann wird ein Skill nachgeladen. Und ganz außen Regeln und Rechte: die AGENTS.md mit den Projektregeln, Freigaben vor gefährlichen Aktionen, eine Sandbox.
+
+Das alles ist kein Modell, sondern Software drumherum. Claude Code, OpenCode und Codex sind keine Modelle, sondern Harnesses. Bei uns ist es OpenCode, und dahinter hängen die Open-Weight-Modelle aus meinem anderen Vortrag.
+
+Das ist auch die Brücke zu den Bausteinen: Prompt, Skill, MCP und Agent leben alle im Harness.
+:::
+
+## Das Harness wird wichtiger als das Wissen im Modell
+
+<div class="weg"><span class="on">1 Die Bausteine</span><span>2 Wann brauche ich was?</span><span>3 Risiken</span></div>
+
+<div class="grid2">
+<div class="ordix-card"><h3>Früher</h3><p>Das Modell soll <strong>möglichst viel wissen</strong>. Mehr Trainingsdaten, mehr Parameter, und die Antwort kommt aus dem Kopf</p></div>
+<div class="ordix-card accent"><h3>Heute</h3><p>Das Modell muss <strong>Tools gut bedienen</strong>: nachschlagen, Datei lesen, Test starten, Ergebnis prüfen und weitermachen</p></div>
+</div>
+
+<p class="lead" style="max-width:1100px; margin-top:22px">Darum kann auch ein <strong>Open-Weight-Modell</strong> sehr gut sein, wenn es weiß, wann es welches Tool wie aufrufen muss. Den Rest erledigt das Harness.</p>
+
+<p style="max-width:1100px; font-size:21px">Selbst Anthropic hat bei seinem Coding-Agenten für SWE-bench <strong>mehr Zeit in die Tools gesteckt als in den Prompt</strong>. <span class="muted">Meine Einschätzung: Die Modelle werden besser, aber das Harness wird wichtiger.</span></p>
+
+::: notes
+(ca. 1,5 Min.)
+
+Das ist meine Einschätzung, und ich begründe sie. Früher war die Frage: Wie viel weiß das Modell? Man hat immer größere Modelle auf immer mehr Trainingsdaten trainiert, damit sie möglichst viel im Kopf haben.
+
+Heute zählt eine andere Fähigkeit: Kann das Modell Tools gut bedienen? Kann es nachschlagen, statt zu raten? Eine Datei lesen, einen Test starten, das Ergebnis prüfen und dann den nächsten Schritt wählen? Ein Modell, das das gut kann, schafft erstaunlich viele Aufgaben, auch wenn es das Wissen dafür gar nicht im Kopf hat. Es holt es sich.
+
+Und deshalb können auch Open-Weight-Modelle heute sehr gut sein. Das sehen wir bei uns im Alltag: Der Coding-Agent OpenCode läuft mit den offenen Modellen, und die Leute arbeiten intensiv damit. Das Modell muss nicht alles wissen, es muss wissen, was es aufrufen muss.
+
+Eine Belegstelle dafür: In dem Beitrag Building effective agents von Anthropic steht im Anhang über Tools, dass sie bei ihrem Coding-Agenten für SWE-bench mehr Zeit mit der Optimierung der Tools verbracht haben als mit dem gesamten Prompt. Die Qualität der Werkzeuge ist also Arbeit, und sie entscheidet.
+
+Konsequenz für euch: Beim Vergleich von Modellen nicht nur auf die Modelle schauen. Dasselbe Modell fühlt sich in einem guten Harness ganz anders an als im Chatfenster. Und wenn ihr ein neues Modell testet, testet es im Harness, in dem ihr wirklich arbeitet.
+
+Das ist eine Einschätzung, keine Messung. Zahlen dazu habe ich nicht.
+:::
+
 # Wann brauche ich was?
 
 Die Leiter und die Faustregel
 
-## Die Leiter: nimm die unterste Stufe, die reicht
+## Die Leiter: Nehmt die unterste Stufe, die reicht
+
+<div class="weg"><span>1 Die Bausteine</span><span class="on">2 Wann brauche ich was?</span><span>3 Risiken</span></div>
 
 <div class="ladder-head"><div>Stufe</div><div>Das reicht, wenn ...</div><div>Nächste Stufe, wenn ...</div></div>
 <div class="ladder">
@@ -323,15 +402,17 @@ Stufe 3: Tool oder MCP. Das Modell muss etwas nachschauen oder auslösen, der Ab
 
 Stufe 4: Agent. Nur wenn der Weg offen ist. Dann aber mit Limits, Freigaben und Nachvollziehbarkeit von Anfang an.
 
-Die Faustregel in einem Satz: Nimm die unterste Stufe, die das Problem löst, und steigt nur auf, wenn ihr an einer konkreten Stelle hängt, nicht weil die höhere Stufe moderner klingt.
+Die Faustregel in einem Satz: Nehmt die unterste Stufe, die das Problem löst, und steigt nur auf, wenn ihr an einer konkreten Stelle hängt, nicht weil die höhere Stufe moderner klingt.
 :::
 
 ## Faustregel zum Ausprobieren
 
+<div class="weg"><span>1 Die Bausteine</span><span class="on">2 Wann brauche ich was?</span><span>3 Risiken</span></div>
+
 <div class="anim" data-anim="entscheider"></div>
 
 ::: notes
-(ca. 2 Min.)
+(ca. 1,5 Min.)
 
 Damit ihr die Leiter nicht auswendig lernen müsst: fünf Fragen. Ich spiele sie mit euch kurz durch. Zuerst: Ist der Ablauf immer gleich? Dann braucht ihr keinen Agenten, sondern einen Workflow. Wenn nicht: Reicht es, dem Modell Text mitzugeben? Dann Prompt, oder Skill, wenn ihr es immer wieder tut. Wenn das Modell mehr braucht: Live-Daten oder Aktionen, also Tools. Und nur wenn es dazu noch selbst entscheiden muss, welche Schritte nötig sind: Agent.
 
@@ -341,6 +422,8 @@ Die Beispiele sind absichtlich alltäglich. Ihr werdet merken, dass die meisten 
 :::
 
 ## Beispiele aus dem Betrieb {.hex}
+
+<div class="weg"><span>1 Die Bausteine</span><span class="on">2 Wann brauche ich was?</span><span>3 Risiken</span></div>
 
 <div class="grid2 examples">
 <div class="ordix-card"><h3>Chatbot für die Behörde</h3><p><strong>Prompt.</strong> Modell plus guter Prompt, am Anfang nicht mehr</p></div>
@@ -352,7 +435,7 @@ Die Beispiele sind absichtlich alltäglich. Ihr werdet merken, dass die meisten 
 </div>
 
 ::: notes
-(ca. 1,5 Min.)
+(ca. 1 Min.)
 
 Damit es nicht abstrakt bleibt: Sechs Beispiele aus unserem Alltag, jeweils mit der Stufe, die gereicht hat.
 
@@ -373,6 +456,8 @@ Was passiert, wenn der Agent mehr darf
 
 ## Die gefährliche Dreierkombination: Lethal Trifecta
 
+<div class="weg"><span>1 Die Bausteine</span><span>2 Wann brauche ich was?</span><span class="on">3 Risiken</span></div>
+
 <div class="anim" data-anim="trifecta"></div>
 
 ::: notes
@@ -392,6 +477,8 @@ Wichtig: Vendor-Filter, die solche Angriffe angeblich erkennen, sind laut Willis
 :::
 
 ## Was ihr dagegen tun könnt
+
+<div class="weg"><span>1 Die Bausteine</span><span>2 Wann brauche ich was?</span><span class="on">3 Risiken</span></div>
 
 - **Ein Bein streichen**: Ein Agent mit Zugriff auf das Postfach braucht kein freies Internet
 - **Rechte klein halten**: Ein Token pro Aufgabe, nur lesen, wo lesen reicht
@@ -421,19 +508,17 @@ Was nehmt ihr mit?
 
 ## Euer Harness gehört euch
 
-- Das **Harness** ist alles um das Modell herum: die App (zum Beispiel OpenCode oder Claude Code), die Tools, MCP-Server, Skills, Regeldateien wie `AGENTS.md` und die Rechte
-- Das Modell ist austauschbar. Das Harness bestimmt, **wie sich die Arbeit anfühlt**
-- Es ist so persönlich wie **euer Laptop**: eure Aliase, eure Shell, eure Abkürzungen
+- Das Harness ist **so persönlich wie euer Laptop**: eure Aliase, eure Shell, eure Abkürzungen
+- Regeldateien, Skills und MCP-Server passen zu **eurer Arbeitsweise**, nicht zu meiner
+- Das Modell könnt ihr tauschen. Am Harness merkt ihr jeden Tag, ob es zu euch passt
 - Darum gibt es von mir **keine Skill-Sammlung zum Kopieren**. Baut sie aus dem, was ihr schon dreimal getippt habt
 
 ::: notes
-(ca. 1,5 Min.)
+(ca. 1 Min.)
 
-Bevor ich zum Schluss komme, ein Gedanke, der mir wichtig ist. Ich habe viel von Skills, MCP und Agenten geredet. Das alles zusammen nennt man oft das Harness. Harness heißt wörtlich Geschirr, wie beim Pferd: Das Modell ist das Pferd, das Harness ist alles, womit man es einspannt. Also die App, in der ihr arbeitet, zum Beispiel OpenCode oder Claude Code. Die Tools und MCP-Server, die angeschlossen sind. Die Skills. Die Regeldatei wie AGENTS.md, in der steht, wie in diesem Projekt gearbeitet wird. Und die Rechte: Was darf das Ding anfassen?
+Zurück zum Harness, jetzt der persönliche Teil. Denkt an euren Laptop: Ihr habt eure Aliase, eure Shell-Konfiguration, eure Abkürzungen, die niemand sonst versteht. Wenn ich euch meine .zshrc gebe, wird sie bei euch nicht gut funktionieren. Mit dem Harness ist es genauso: Die AGENTS.md, die Skills und die MCP-Server, die zu meiner Arbeitsweise passen, passen nicht automatisch zu euren.
 
 Das Modell könnt ihr austauschen, das merkt man erstaunlich wenig. Das Harness merkt man jeden Tag.
-
-Und das ist persönlich. Denkt an euren Laptop: Ihr habt eure Aliase, eure Shell-Konfiguration, eure Abkürzungen, die niemand sonst versteht. Wenn ich euch meine .zshrc gebe, wird sie bei euch nicht gut funktionieren. Mit Skills ist es genauso. Mein Skill passt zu meiner Arbeitsweise.
 
 Deshalb gebe ich ungern Skill-Empfehlungen. Mein Tipp: Wenn ihr dasselbe zum dritten Mal tippt, macht daraus euren eigenen Skill. Dann passt er.
 :::
@@ -485,6 +570,34 @@ Die Frage aus dem Titel, was brauche ich wirklich, hat also eine langweilige Ant
 Danach Fragen. Falls keine kommen, habe ich ein paar: Wer von euch hat einen Agenten im Einsatz, und wo hat er euch überrascht?
 :::
 
+## Wie kommt ihr zu diesem Vortrag?
+
+<div class="share">
+<div class="share-text">
+<img class="share-logo" src="../01_Mein_Modell_meine_Hardware_meine_Regeln/logos/github.svg" alt="GitHub">
+<div class="share-title">Alle Folien liegen auf GitHub</div>
+<p class="share-link">janis-ax.github.io/conferences</p>
+</div>
+<div class="share-qr">
+<svg class="qr" xmlns="http://www.w3.org/2000/svg" viewBox="-2 -2 45 45" shape-rendering="crispEdges" role="img" aria-label="QR-Code zu den Folien"><rect x="-2" y="-2" width="45" height="45" fill="#fff"/><path fill="#13253C" d="M0 0h7v1h-7zM8 0h2v1h-2zM12 0h1v1h-1zM16 0h1v1h-1zM19 0h2v1h-2zM22 0h2v1h-2zM29 0h4v1h-4zM34 0h7v1h-7zM0 1h1v1h-1zM6 1h1v1h-1zM8 1h4v1h-4zM13 1h2v1h-2zM16 1h2v1h-2zM21 1h4v1h-4zM26 1h1v1h-1zM28 1h1v1h-1zM30 1h1v1h-1zM34 1h1v1h-1zM40 1h1v1h-1zM0 2h1v1h-1zM2 2h3v1h-3zM6 2h1v1h-1zM9 2h1v1h-1zM11 2h1v1h-1zM14 2h2v1h-2zM18 2h2v1h-2zM21 2h2v1h-2zM24 2h6v1h-6zM31 2h1v1h-1zM34 2h1v1h-1zM36 2h3v1h-3zM40 2h1v1h-1zM0 3h1v1h-1zM2 3h3v1h-3zM6 3h1v1h-1zM8 3h2v1h-2zM12 3h1v1h-1zM18 3h1v1h-1zM21 3h2v1h-2zM27 3h2v1h-2zM34 3h1v1h-1zM36 3h3v1h-3zM40 3h1v1h-1zM0 4h1v1h-1zM2 4h3v1h-3zM6 4h1v1h-1zM10 4h2v1h-2zM13 4h4v1h-4zM18 4h2v1h-2zM21 4h1v1h-1zM23 4h3v1h-3zM27 4h1v1h-1zM31 4h1v1h-1zM34 4h1v1h-1zM36 4h3v1h-3zM40 4h1v1h-1zM0 5h1v1h-1zM6 5h1v1h-1zM10 5h1v1h-1zM12 5h3v1h-3zM17 5h3v1h-3zM22 5h1v1h-1zM25 5h2v1h-2zM28 5h2v1h-2zM31 5h1v1h-1zM34 5h1v1h-1zM40 5h1v1h-1zM0 6h7v1h-7zM8 6h1v1h-1zM10 6h1v1h-1zM12 6h1v1h-1zM14 6h1v1h-1zM16 6h1v1h-1zM18 6h1v1h-1zM20 6h1v1h-1zM22 6h1v1h-1zM24 6h1v1h-1zM26 6h1v1h-1zM28 6h1v1h-1zM30 6h1v1h-1zM32 6h1v1h-1zM34 6h7v1h-7zM8 7h2v1h-2zM12 7h3v1h-3zM16 7h2v1h-2zM22 7h2v1h-2zM29 7h1v1h-1zM31 7h1v1h-1zM0 8h1v1h-1zM2 8h2v1h-2zM5 8h3v1h-3zM11 8h2v1h-2zM14 8h1v1h-1zM17 8h2v1h-2zM21 8h1v1h-1zM26 8h1v1h-1zM28 8h3v1h-3zM34 8h1v1h-1zM37 8h1v1h-1zM39 8h2v1h-2zM2 9h2v1h-2zM5 9h1v1h-1zM10 9h1v1h-1zM16 9h4v1h-4zM22 9h2v1h-2zM30 9h3v1h-3zM34 9h3v1h-3zM38 9h3v1h-3zM3 10h1v1h-1zM5 10h2v1h-2zM9 10h4v1h-4zM16 10h3v1h-3zM20 10h7v1h-7zM28 10h1v1h-1zM33 10h3v1h-3zM38 10h1v1h-1zM1 11h1v1h-1zM4 11h1v1h-1zM8 11h1v1h-1zM10 11h4v1h-4zM16 11h1v1h-1zM23 11h3v1h-3zM27 11h2v1h-2zM30 11h1v1h-1zM32 11h3v1h-3zM0 12h2v1h-2zM4 12h1v1h-1zM6 12h2v1h-2zM10 12h2v1h-2zM13 12h1v1h-1zM17 12h1v1h-1zM21 12h2v1h-2zM26 12h2v1h-2zM29 12h1v1h-1zM31 12h2v1h-2zM37 12h2v1h-2zM40 12h1v1h-1zM0 13h1v1h-1zM2 13h1v1h-1zM4 13h1v1h-1zM8 13h2v1h-2zM11 13h2v1h-2zM15 13h4v1h-4zM22 13h2v1h-2zM25 13h1v1h-1zM28 13h2v1h-2zM32 13h1v1h-1zM34 13h1v1h-1zM38 13h3v1h-3zM2 14h3v1h-3zM6 14h1v1h-1zM9 14h2v1h-2zM12 14h2v1h-2zM15 14h1v1h-1zM18 14h1v1h-1zM21 14h2v1h-2zM24 14h1v1h-1zM26 14h7v1h-7zM34 14h1v1h-1zM36 14h1v1h-1zM38 14h3v1h-3zM1 15h1v1h-1zM3 15h1v1h-1zM5 15h1v1h-1zM8 15h2v1h-2zM13 15h1v1h-1zM15 15h1v1h-1zM18 15h5v1h-5zM24 15h1v1h-1zM26 15h1v1h-1zM28 15h1v1h-1zM34 15h4v1h-4zM39 15h1v1h-1zM0 16h2v1h-2zM3 16h5v1h-5zM9 16h3v1h-3zM13 16h2v1h-2zM16 16h1v1h-1zM18 16h6v1h-6zM25 16h1v1h-1zM27 16h2v1h-2zM30 16h1v1h-1zM32 16h1v1h-1zM36 16h1v1h-1zM0 17h3v1h-3zM5 17h1v1h-1zM7 17h2v1h-2zM12 17h1v1h-1zM17 17h1v1h-1zM20 17h1v1h-1zM22 17h3v1h-3zM26 17h2v1h-2zM31 17h3v1h-3zM35 17h1v1h-1zM37 17h1v1h-1zM1 18h6v1h-6zM11 18h3v1h-3zM15 18h1v1h-1zM17 18h1v1h-1zM21 18h1v1h-1zM25 18h3v1h-3zM30 18h1v1h-1zM32 18h1v1h-1zM36 18h1v1h-1zM38 18h1v1h-1zM2 19h1v1h-1zM4 19h1v1h-1zM8 19h1v1h-1zM10 19h2v1h-2zM13 19h1v1h-1zM22 19h2v1h-2zM25 19h2v1h-2zM28 19h4v1h-4zM33 19h1v1h-1zM35 19h1v1h-1zM37 19h4v1h-4zM1 20h2v1h-2zM5 20h10v1h-10zM18 20h2v1h-2zM22 20h1v1h-1zM24 20h3v1h-3zM33 20h2v1h-2zM36 20h4v1h-4zM0 21h2v1h-2zM7 21h1v1h-1zM10 21h1v1h-1zM12 21h2v1h-2zM17 21h6v1h-6zM31 21h2v1h-2zM34 21h7v1h-7zM1 22h1v1h-1zM4 22h1v1h-1zM6 22h1v1h-1zM8 22h1v1h-1zM11 22h1v1h-1zM14 22h4v1h-4zM22 22h3v1h-3zM26 22h1v1h-1zM28 22h2v1h-2zM33 22h1v1h-1zM35 22h1v1h-1zM39 22h1v1h-1zM0 23h6v1h-6zM7 23h1v1h-1zM9 23h2v1h-2zM13 23h1v1h-1zM18 23h2v1h-2zM22 23h2v1h-2zM25 23h3v1h-3zM30 23h3v1h-3zM34 23h2v1h-2zM0 24h1v1h-1zM2 24h3v1h-3zM6 24h1v1h-1zM8 24h1v1h-1zM10 24h1v1h-1zM12 24h1v1h-1zM14 24h1v1h-1zM17 24h1v1h-1zM19 24h1v1h-1zM22 24h1v1h-1zM24 24h3v1h-3zM28 24h2v1h-2zM35 24h1v1h-1zM38 24h1v1h-1zM2 25h1v1h-1zM7 25h1v1h-1zM14 25h1v1h-1zM17 25h1v1h-1zM19 25h1v1h-1zM24 25h2v1h-2zM27 25h3v1h-3zM31 25h4v1h-4zM37 25h2v1h-2zM40 25h1v1h-1zM1 26h3v1h-3zM5 26h2v1h-2zM11 26h1v1h-1zM15 26h1v1h-1zM17 26h1v1h-1zM19 26h4v1h-4zM26 26h1v1h-1zM30 26h4v1h-4zM35 26h1v1h-1zM37 26h1v1h-1zM39 26h2v1h-2zM0 27h2v1h-2zM4 27h1v1h-1zM7 27h3v1h-3zM11 27h3v1h-3zM15 27h2v1h-2zM20 27h4v1h-4zM26 27h2v1h-2zM31 27h3v1h-3zM35 27h1v1h-1zM37 27h1v1h-1zM40 27h1v1h-1zM0 28h2v1h-2zM6 28h2v1h-2zM10 28h9v1h-9zM21 28h2v1h-2zM27 28h2v1h-2zM30 28h3v1h-3zM35 28h3v1h-3zM39 28h2v1h-2zM1 29h1v1h-1zM4 29h1v1h-1zM8 29h1v1h-1zM11 29h3v1h-3zM15 29h5v1h-5zM22 29h1v1h-1zM24 29h2v1h-2zM28 29h1v1h-1zM30 29h3v1h-3zM34 29h2v1h-2zM38 29h3v1h-3zM0 30h1v1h-1zM4 30h3v1h-3zM8 30h1v1h-1zM11 30h6v1h-6zM18 30h1v1h-1zM20 30h5v1h-5zM27 30h2v1h-2zM31 30h1v1h-1zM33 30h2v1h-2zM37 30h2v1h-2zM3 31h1v1h-1zM5 31h1v1h-1zM7 31h2v1h-2zM11 31h3v1h-3zM15 31h1v1h-1zM17 31h2v1h-2zM20 31h1v1h-1zM22 31h1v1h-1zM24 31h1v1h-1zM26 31h1v1h-1zM29 31h3v1h-3zM34 31h1v1h-1zM36 31h5v1h-5zM1 32h2v1h-2zM4 32h6v1h-6zM11 32h2v1h-2zM14 32h1v1h-1zM16 32h6v1h-6zM23 32h1v1h-1zM26 32h1v1h-1zM29 32h2v1h-2zM32 32h8v1h-8zM8 33h2v1h-2zM11 33h1v1h-1zM14 33h1v1h-1zM18 33h3v1h-3zM23 33h1v1h-1zM26 33h1v1h-1zM28 33h5v1h-5zM36 33h5v1h-5zM0 34h7v1h-7zM8 34h1v1h-1zM12 34h1v1h-1zM16 34h2v1h-2zM20 34h4v1h-4zM26 34h1v1h-1zM30 34h1v1h-1zM32 34h1v1h-1zM34 34h1v1h-1zM36 34h2v1h-2zM0 35h1v1h-1zM6 35h1v1h-1zM8 35h1v1h-1zM12 35h1v1h-1zM14 35h1v1h-1zM18 35h1v1h-1zM20 35h4v1h-4zM25 35h3v1h-3zM29 35h1v1h-1zM32 35h1v1h-1zM36 35h1v1h-1zM39 35h1v1h-1zM0 36h1v1h-1zM2 36h3v1h-3zM6 36h1v1h-1zM10 36h1v1h-1zM12 36h1v1h-1zM15 36h2v1h-2zM18 36h2v1h-2zM21 36h2v1h-2zM24 36h1v1h-1zM32 36h5v1h-5zM38 36h1v1h-1zM40 36h1v1h-1zM0 37h1v1h-1zM2 37h3v1h-3zM6 37h1v1h-1zM8 37h1v1h-1zM11 37h1v1h-1zM14 37h2v1h-2zM18 37h2v1h-2zM21 37h1v1h-1zM23 37h3v1h-3zM27 37h1v1h-1zM31 37h1v1h-1zM36 37h1v1h-1zM39 37h1v1h-1zM0 38h1v1h-1zM2 38h3v1h-3zM6 38h1v1h-1zM8 38h1v1h-1zM12 38h1v1h-1zM15 38h2v1h-2zM18 38h3v1h-3zM22 38h1v1h-1zM24 38h2v1h-2zM29 38h3v1h-3zM35 38h1v1h-1zM37 38h1v1h-1zM39 38h2v1h-2zM0 39h1v1h-1zM6 39h1v1h-1zM10 39h2v1h-2zM15 39h1v1h-1zM18 39h2v1h-2zM21 39h1v1h-1zM30 39h1v1h-1zM32 39h2v1h-2zM36 39h2v1h-2zM39 39h1v1h-1zM0 40h7v1h-7zM8 40h1v1h-1zM13 40h1v1h-1zM16 40h4v1h-4zM21 40h2v1h-2zM25 40h2v1h-2zM30 40h3v1h-3zM34 40h1v1h-1zM37 40h1v1h-1zM39 40h1v1h-1z"/></svg>
+<p>Direkt zu diesem Vortrag</p>
+</div>
+</div>
+
+::: notes
+(ca. 0,5 Min.)
+
+Alles, was ich gezeigt habe, könnt ihr selbst ausprobieren: den Kontext-Balken, den Skill, den Tool-Aufruf, den Agenten, das Harness und die Entscheidungshilfe.
+
+Der QR-Code führt direkt zu diesem Vortrag, auf der Startseite findet ihr auch meinen anderen Vortrag von der DOAG. Die Seite läuft komplett im Browser, ihr braucht nichts zu installieren.
+:::
+
+## Vielen Dank für Ihre Aufmerksamkeit {.closing}
+
+# Anhang
+
+Quellen und zum Nachlesen
+
 ## Quellen und zum Nachlesen
 
 <ul class="quellen">
@@ -499,31 +612,9 @@ Danach Fragen. Falls keine kommen, habe ich ein paar: Wer von euch hat einen Age
 </ul>
 
 ::: notes
-(ca. 0,5 Min.)
+Anhang, nicht Teil des Vortrags.
 
-Das sind die Quellen für alles, was ich heute belegt habe. Die Folie bleibt nur kurz stehen, die Links findet ihr in der Online-Version. Besonders empfehle ich den Beitrag Building effective agents. Er ist kurz und in einfachen Worten geschrieben.
+Das sind die Quellen für alles, was ich heute belegt habe. Die Links findet ihr in der Online-Version. Besonders empfehle ich den Beitrag Building effective agents. Er ist kurz und in einfachen Worten geschrieben.
 
-Stand der Quellen: 21.10.2026. TODO: Vor dem Vortrag alle Links prüfen.
+Stand der Quellen: 21.10.2026.
 :::
-
-## Wie kommt ihr zu diesem Vortrag?
-
-<div class="slide-logos"><img src="../01_Mein_Modell_meine_Hardware_meine_Regeln/logos/github.svg" alt="GitHub"></div>
-
-<div class="bigtext" style="font-size:40px; margin-top:30px">Folien, Animationen und Sprechernotizen zum Nachlesen und Ausprobieren</div>
-
-<p class="lead">janis-ax.github.io/conferences/02_MCP_Skills_Prompts_Agents/praesentation.html</p>
-
-<p class="muted" style="font-size:18px">Startseite mit allen Vorträgen: janis-ax.github.io/conferences<br>Die Animationen laufen im Browser, ohne Installation. Mit der Taste S öffnet sich die Referentenansicht mit den Notizen.</p>
-
-::: notes
-(ca. 0,5 Min.)
-
-Alles, was ich gezeigt habe, könnt ihr selbst ausprobieren: den Kontext-Balken, den Skill, den Tool-Aufruf, den Agenten und die Entscheidungshilfe. Der Link führt direkt zu diesem Vortrag, auf der Startseite findet ihr auch meinen anderen Vortrag.
-
-Die Seite läuft komplett im Browser, ihr braucht nichts zu installieren.
-
-TODO: Vor dem Vortrag prüfen, ob die Seite von außen erreichbar ist.
-:::
-
-## Vielen Dank für Ihre Aufmerksamkeit {.closing}

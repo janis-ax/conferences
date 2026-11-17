@@ -128,7 +128,7 @@
       { n: 'Gesprächsverlauf', short: 'Verlauf', k: 25, c: '#7F8FA6', on: false },
       { n: 'Agent: Zwischenergebnisse', short: 'Zwischenergebnisse', k: 40, c: '#B24A00', on: false }
     ];
-    text(s, BX, 34, 'Kontextfenster: 128k Tokens (Beispielgröße, alle Werte sind Demowerte)', { 'font-size': 20, 'font-weight': 700 });
+    text(s, BX, 34, 'Kontextfenster: 128k Tokens', { 'font-size': 20, 'font-weight': 700 });
     el('rect', { x: BX, y: BY, width: BW, height: BH, fill: '#F4F6F8', stroke: C.navy, 'stroke-width': 1.5 }, s);
     PARTS.forEach(function (p) {
       p.cur = p.on ? p.k : 0;
@@ -225,7 +225,7 @@
         f.rect.setAttribute('stroke-width', on ? 4 : 1.5);
       });
       cap.textContent = caption;
-      count.textContent = 'Vom Skill belegt: ' + fmt(tokens) + ' Tokens (Beispielwerte)';
+      count.textContent = 'Vom Skill belegt: ' + fmt(tokens) + ' Tokens';
     }
     inst.reset = function () { t = 0; render(); };
     inst.tick = function (dt) {
@@ -421,6 +421,64 @@
       function (v) { mode = v; inst.reset(); inst.playing = true; inst.sync(); });
     playButtons(bar, inst);
     inst.reset();
+  });
+
+  /* ===== Harness: alles um das Modell herum ===== */
+
+  register('harness', function (root, inst) {
+    var W = 1100, H = 344, s = svg(root, W, H);
+    var STEP = 3, T = 6 * STEP + 1.5, t = 0;
+    var CAPS = [
+      'Das Modell allein: Text rein, Text raus. Mehr kann es nicht.',
+      'Eine Schleife ruft es immer wieder auf, bis die Aufgabe erledigt ist.',
+      'Tools geben ihm Hände: Dateien lesen und schreiben, Befehle ausführen, suchen.',
+      'Der Kontext wird verwaltet: Was kommt rein, was wird gekürzt, was wird nachgeladen?',
+      'Regeln und Rechte legen fest, was es darf und wie in diesem Projekt gearbeitet wird.',
+      'Alles zusammen ist das Harness. Claude Code, OpenCode und Codex sind Harnesses.'
+    ];
+    var layers = [];
+    function layer(step) { var g = el('g', { opacity: 0 }, s); g.step = step; layers.push(g); return g; }
+    // Von außen nach innen zeichnen, damit die inneren Ebenen oben liegen
+    var rules = layer(4);
+    el('rect', { x: 20, y: 10, width: 1060, height: 300, fill: '#F4F6F8', stroke: C.grey, 'stroke-width': 1.5 }, rules);
+    text(rules, 40, 34, 'Regeln und Rechte', { 'font-size': 18, 'font-weight': 700 });
+    text(rules, 550, 300, 'AGENTS.md · Freigaben vor gefährlichen Aktionen · Sandbox', { 'font-size': 16, fill: C.muted, 'text-anchor': 'middle' });
+    var ctx = layer(3);
+    el('rect', { x: 60, y: 48, width: 980, height: 232, fill: '#EAF0F6', stroke: C.grey, 'stroke-width': 1.5 }, ctx);
+    text(ctx, 80, 72, 'Kontext verwalten', { 'font-size': 18, 'font-weight': 700 });
+    text(ctx, 550, 270, 'Verlauf · Skills bei Bedarf laden · lange Ausgaben kürzen', { 'font-size': 16, fill: C.muted, 'text-anchor': 'middle' });
+    var tools = layer(2);
+    el('rect', { x: 100, y: 86, width: 900, height: 164, fill: C.light, stroke: C.grey, 'stroke-width': 1.5 }, tools);
+    text(tools, 120, 110, 'Tools', { 'font-size': 18, 'font-weight': 700 });
+    [['Dateien lesen', 120, 146], ['Befehle ausführen', 120, 192], ['Suche', 780, 146], ['MCP-Server', 780, 192]].forEach(function (c) {
+      el('rect', { x: c[1], y: c[2], width: 200, height: 36, fill: '#fff', stroke: C.navy, 'stroke-width': 1.5 }, tools);
+      text(tools, c[1] + 100, c[2] + 24, c[0], { 'font-size': 16, 'text-anchor': 'middle' });
+    });
+    var loop = layer(1);
+    el('ellipse', { cx: 550, cy: 185, rx: 190, ry: 62, fill: '#FFF3EB', stroke: C.orange, 'stroke-width': 2.5, 'stroke-dasharray': '8 6' }, loop);
+    text(loop, 550, 236, 'Schleife', { 'font-size': 16, fill: C.orange, 'text-anchor': 'middle', 'font-weight': 700 });
+    var core = layer(0);
+    el('rect', { x: 480, y: 152, width: 140, height: 50, fill: C.navy }, core);
+    text(core, 550, 184, 'Modell', { 'font-size': 20, 'font-weight': 700, fill: C.white, 'text-anchor': 'middle' });
+    // Das Modell liegt über allen Ebenen
+    s.appendChild(core);
+    var cap = text(s, 20, 338, '', { 'font-size': 19, 'font-weight': 700 });
+
+    function render() {
+      var step = Math.min(5, Math.floor(t / STEP));
+      layers.forEach(function (g) {
+        g.setAttribute('opacity', Math.max(0, Math.min(1, (t - g.step * STEP) / 0.6)));
+      });
+      cap.textContent = CAPS[step];
+    }
+    inst.reset = function () { t = 0; render(); };
+    inst.tick = function (dt) {
+      t += dt;
+      if (t >= T) { t = T; finish(inst); }
+      render();
+    };
+    playButtons(controls(root), inst);
+    render();
   });
 
   /* ===== Entscheidungshilfe: Fragen statt Bauchgefühl ===== */

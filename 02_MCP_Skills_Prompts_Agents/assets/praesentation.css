@@ -9,17 +9,7 @@
   font-size: 0.8em;
 }
 
-/* ===== Logos oben rechts unter dem ORDIX Logo ===== */
-.reveal .slides section.slide > .slide-logos {
-  position: absolute;
-  right: 62px;
-  top: 112px;
-  display: flex;
-  gap: 22px;
-  align-items: center;
-  z-index: 1;
-}
-.reveal .slide-logos img { height: 40px; width: auto; margin: 0; }
+/* Logos oben rechts: siehe _extensions/ordix */
 .reveal img.logo { height: 34px; width: auto; margin: 0; vertical-align: middle; }
 
 /* ===== Große Zahl und Kernaussage ===== */
@@ -104,3 +94,8 @@
 /* ===== Code und Fußnoten ===== */
 .reveal pre code { font-size: 19px; line-height: 1.4; max-height: none; }
 .reveal .anim + p.muted { margin-top: 26px; }
+
+/* Abgerundete Ecken wie bei den Karten im Layout */
+.reveal .todo, .reveal .buzz span { border-radius: 4px; }
+.reveal .layer, .reveal .stack-side, .reveal .rung, .reveal .dec-res { border-radius: 8px; }
+.reveal .rung { overflow: hidden; }

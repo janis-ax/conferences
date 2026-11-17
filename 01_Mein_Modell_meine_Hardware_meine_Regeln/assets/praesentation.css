@@ -9,7 +9,7 @@
   font-size: 0.8em;
 }
 
-/* Logos oben rechts: siehe _extensions/ordix */
+/* Logos oben rechts, roter Faden (.weg), Übersicht (.grid3) und Folie "Wie kommt ihr zu diesem Vortrag?": siehe _extensions/ordix */
 .reveal img.logo { height: 34px; width: auto; margin: 0; vertical-align: middle; }
 
 /* ===== Große Zahl und Kernaussage ===== */
@@ -38,18 +38,7 @@
 .reveal .gb-bar.gpu { background: #FF6800; }
 .reveal .gb-value { font-weight: 700; white-space: nowrap; }
 
-/* ===== Roter Faden: wo im Model Serving sind wir gerade? ===== */
-.reveal .slides section.slide > .weg {
-  position: absolute; left: 61.6px; top: 30px;
-  display: flex; gap: 6px; font-size: 13px; z-index: 1;
-}
-.reveal .weg span { padding: 2px 10px; border: 1px solid #AEC3E0; color: #5B6B7F; }
-.reveal .weg span.on { background: #FF6800; border-color: #FF6800; color: #fff; font-weight: 700; }
-
 /* ===== Karten im Raster ===== */
-.reveal .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 22px; }
-.reveal .grid3 .ordix-card h3 { font-size: 23px; margin: 0 0 10px 0; color: #13253C; text-transform: none; }
-.reveal .grid3 .ordix-card p { margin: 0 0 8px 0; font-size: 20px; }
 .reveal .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; }
 .reveal .grid2 .ordix-card { font-size: 21px; }
 .reveal .grid2 .ordix-card h3 { font-size: 23px; margin: 0 0 6px 0; color: #13253C; text-transform: none; }
@@ -135,21 +124,7 @@
 
 /* Quantisierungstabelle auf "Was ist ein Modell?" */
 .reveal #was-ist-ein-modell table { font-size: 18px; margin-top: 18px; }
-.reveal .grid3 .ordix-card { min-height: 250px; }
-.reveal .grid3 .nr { display: block; font-size: 52px; line-height: 1; color: #FF6800; margin-bottom: 8px; }
 
 /* Abgerundete Ecken wie bei den Karten im Layout */
-.reveal .todo, .reveal .weg span { border-radius: 4px; }
+.reveal .todo { border-radius: 4px; }
 .reveal .layer, .reveal .stack-side, .reveal .weights { border-radius: 8px; }
-
-/* Folie "Wie kommt ihr zu diesem Vortrag?": Text links, QR-Code rechts */
-.reveal .share { display: flex; align-items: center; gap: 56px; margin-top: 20px; }
-.reveal .share-text { flex: 1; }
-.reveal .share-logo { height: 52px; width: auto; max-width: none; max-height: none; margin: 0 0 18px 0; display: block; }
-.reveal .share-title { font-size: 46px; font-weight: 700; line-height: 1.1; color: #13253C; margin-bottom: 16px; }
-.reveal .share-sub { font-size: 24px; margin: 0 0 26px 0; }
-.reveal .share-link { display: inline-block; font-size: 26px; font-weight: 700; color: #13253C; margin: 0 0 12px 0; padding: 10px 18px; border-left: 6px solid #FF6800; background: #F3F5F8; }
-.reveal .share-hint { font-size: 16px; margin: 6px 0 0 0; }
-.reveal .share-qr { flex: none; text-align: center; }
-.reveal .share-qr .qr { width: 270px; height: 270px; max-width: none; max-height: none; margin: 0; display: block; border: 1px solid #D5DBE3; border-radius: 6px; }
-.reveal .share-qr p { font-size: 18px; margin: 10px 0 0 0; color: #5B6B7F; }
