@@ -2,8 +2,8 @@
 .reveal .vorstellung { align-items: center; }
 .reveal .portrait {
   width: 270px; height: 270px; border-radius: 50%;
-  object-fit: cover; object-position: 50% 28%;
+  object-fit: cover; object-position: 50% 50%;
   border: 6px solid #FF6800; margin: 10px 0 0 10px;
 }
-.reveal .kontakt { font-size: 22px; margin-top: 22px; line-height: 1.7; }
-.reveal .kontakt span { display: inline-block; width: 140px; white-space: nowrap; font-weight: 700; color: #5B6B7F; }
+.reveal .kontakt { font-size: 22px; margin-top: 30px; line-height: 1.7; }
+.reveal .kontakt span { display: inline-block; width: 170px; white-space: nowrap; font-weight: 700; color: #5B6B7F; }
