@@ -1098,6 +1098,68 @@
     render();
   });
 
+  /* ===== Referentenansicht und Beamer synchron halten ===== */
+  // Reveal gleicht nur Folie und Fragment ab. Bedienung in den Animationen (Buttons,
+  // Regler, Häkchen, Klicks auf Grafiken) geht zusätzlich über einen BroadcastChannel
+  // an alle anderen Fenster derselben Seite und wird dort nachgespielt.
+  function setupSync(roots) {
+    if (!window.BroadcastChannel) return;
+    var ch;
+    try { ch = new BroadcastChannel('doag-anim-' + location.pathname); } catch (e) { return; }
+    var applying = false;
+    function pathOf(root, node) {
+      var p = [];
+      while (node && node !== root) {
+        var par = node.parentNode;
+        if (!par || !par.children) return null;
+        p.unshift(Array.prototype.indexOf.call(par.children, node));
+        node = par;
+      }
+      return node === root ? p : null;
+    }
+    function resolve(root, p) {
+      var n = root;
+      for (var i = 0; i < p.length; i++) { n = n.children[p[i]]; if (!n) return null; }
+      return n;
+    }
+    function send(i, root, e, extra) {
+      if (applying) return;
+      var p = pathOf(root, e.target);
+      if (!p) return;
+      var m = { i: i, p: p };
+      for (var k in extra) m[k] = extra[k];
+      try { ch.postMessage(m); } catch (err) {}
+    }
+    roots.forEach(function (root, i) {
+      root.addEventListener('click', function (e) {
+        // Eingabefelder und ihre Beschriftungen laufen über die Wert-Nachrichten unten
+        if (e.target.tagName === 'INPUT' || e.target.closest('label')) return;
+        send(i, root, e, { t: 'click' });
+      }, true);
+      root.addEventListener('input', function (e) {
+        if (e.target.type === 'range') send(i, root, e, { t: 'value', v: e.target.value });
+      }, true);
+      root.addEventListener('change', function (e) {
+        if (e.target.type === 'checkbox') send(i, root, e, { t: 'value', c: e.target.checked });
+      }, true);
+    });
+    ch.onmessage = function (ev) {
+      var m = ev.data, root = roots[m.i];
+      if (!root || !m.p) return;
+      var n = resolve(root, m.p);
+      if (!n) return;
+      applying = true;
+      try {
+        if (m.t === 'click') {
+          n.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }));
+        } else if (m.t === 'value') {
+          if (n.type === 'range') { n.value = m.v; n.dispatchEvent(new Event('input', { bubbles: true })); }
+          else if (n.type === 'checkbox') { n.checked = m.c; n.dispatchEvent(new Event('change', { bubbles: true })); }
+        }
+      } finally { applying = false; }
+    };
+  }
+
   /* ===== Registrierung und Takt ===== */
 
   function visibility() {
@@ -1133,6 +1195,7 @@
       instances.push(inst);
     });
     visibility();
+    setupSync([].slice.call(document.querySelectorAll('.anim[data-anim]')));
     var last = performance.now();
     requestAnimationFrame(function frame(now) {
       var dt = Math.min(0.05, (now - last) / 1000);
