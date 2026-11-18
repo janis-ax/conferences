@@ -551,10 +551,10 @@
     var fall = [0, 1, 2, 3].map(function (i) { return text(s, 740, 262 + i * 22, '', { 'font-size': 15, fill: C.muted }); });
     var FALL = ['Mai 2025, Invariant Labs: Ein Issue in', 'einem öffentlichen Repo brachte den Agenten', 'dazu, private Daten in einen öffent-', 'lichen Pull Request zu schreiben.'];
     var verdict = {
-      3: ['Datenabfluss möglich', ['Ein einziger manipulierter Text genügt:', 'Der Agent liest ihn, holt private Daten', 'und schickt sie nach außen.'], C.bad],
-      2: ['Noch kein Abfluss', ['Erst die dritte Fähigkeit macht es', 'gefährlich. Im Zweifel eine streichen.', ''], C.navy],
-      1: ['Unkritisch', ['Eine Fähigkeit allein ist normal.', '', ''], C.ok],
-      0: ['Unkritisch', ['Ohne Fähigkeiten ist es ein Chatbot.', '', ''], C.ok]
+      3: ['Hier fließen Daten ab', ['Jemand schreibt eine Mail oder ein Issue mit', 'einer Anweisung. Der Agent liest sie, holt', 'private Daten und schickt sie raus.'], C.bad],
+      2: ['Noch passiert nichts', ['Eine Zutat fehlt. Solange das so bleibt,', 'kann der Angriff nicht klappen.', ''], C.navy],
+      1: ['Unkritisch', ['Eine Fähigkeit allein hat fast jeder Agent.', '', ''], C.ok],
+      0: ['Unkritisch', ['Ohne Anbindung ist es nur ein Chat.', '', ''], C.ok]
     };
     var github = false;
     function sum() { return tgt[0] + tgt[1] + tgt[2]; }

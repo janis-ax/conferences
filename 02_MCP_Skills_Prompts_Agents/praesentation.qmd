@@ -9,14 +9,16 @@ format:
     css:
       - assets/praesentation.css
       - ../_gemeinsam/vorstellung.css
-    include-after-body: assets/animationen.html
+    include-after-body:
+      - assets/animationen.html
+      - assets/titelbild.html
 ---
 
 ## Was braucht ihr wirklich?
 
 <div class="grid3">
 <div class="ordix-card"><h3><span class="nr">1</span>Die Bausteine</h3><p>Prompt, Skill, Tool und MCP, Agent</p><p><strong>Kontext:</strong> wo alles landet</p><p><strong>Harness:</strong> alles um das Modell herum</p></div>
-<div class="ordix-card"><h3><span class="nr">2</span>Wann brauche ich was?</h3><p><strong>Die Leiter:</strong> die unterste Stufe, die reicht</p><p>Fünf Fragen als Faustregel</p><p>Beispiele aus dem Betrieb</p></div>
+<div class="ordix-card"><h3><span class="nr">2</span>Wann brauche ich was?</h3><p><strong>Die Leiter:</strong> die unterste Stufe, die reicht</p><p>Fünf Fragen zum Durchspielen</p><p>Was bei uns läuft</p></div>
 <div class="ordix-card"><h3><span class="nr">3</span>Risiken im Betrieb</h3><p><strong>Lethal Trifecta:</strong> die gefährliche Dreierkombination</p><p>Rechte, Freigaben, Mitschreiben</p></div>
 </div>
 
@@ -66,8 +68,6 @@ Meine These: Die meisten davon sind Verpackung. Dahinter stecken vier einfache D
 Warum ich das glaube: Bei uns lief das in dieser Reihenfolge. Erst ein Chatbot, also Modell plus Prompt. Dann ein Coding-Agent, der heute sehr intensiv genutzt wird. Dazu kleine Programme, die Release Notes erzeugen oder Logs auswerten. Und wir mussten uns bei jedem Schritt fragen: Brauche ich dafür wirklich etwas Neues?
 
 Hinweis: AGENTS.md ist übrigens kein Buzzword, sondern eine Datei, die in dem Repository liegt, aus dem diese Folien gebaut werden. Dazu später mehr.
-
-TODO: eigene Anekdote einbauen: Wann habt ihr zuletzt etwas Großes gebaut, und ein Prompt hätte gereicht?
 :::
 
 # Die Bausteine
@@ -405,7 +405,7 @@ Stufe 4: Agent. Nur wenn der Weg offen ist. Dann aber mit Limits, Freigaben und 
 Die Faustregel in einem Satz: Nehmt die unterste Stufe, die das Problem löst, und steigt nur auf, wenn ihr an einer konkreten Stelle hängt, nicht weil die höhere Stufe moderner klingt.
 :::
 
-## Faustregel zum Ausprobieren
+## Fünf Fragen zum Durchspielen
 
 <div class="weg"><span>1 Die Bausteine</span><span class="on">2 Wann brauche ich was?</span><span>3 Risiken</span></div>
 
@@ -421,7 +421,7 @@ Probiert verschiedene Wege aus, jeder Weg endet in einer Stufe mit einem Beispie
 Die Beispiele sind absichtlich alltäglich. Ihr werdet merken, dass die meisten Aufgaben im unteren Bereich enden. Das ist kein Zufall, sondern der Punkt.
 :::
 
-## Beispiele aus dem Betrieb {.hex}
+## Was bei uns läuft {.hex}
 
 <div class="weg"><span>1 Die Bausteine</span><span class="on">2 Wann brauche ich was?</span><span>3 Risiken</span></div>
 
@@ -446,8 +446,6 @@ Auffällig: Nur eines von sechs Beispielen ist ein echter Agent. Und das ist kei
 Die Beispiele stammen aus dem Projekt aus meinem anderen Vortrag, die Details dort.
 
 Das sechste Beispiel ist der MCP-Server für die Oracle Cloud. Dazu gibt es einen eigenen Vortrag: Donnerstag, 19.11., 14:00 Uhr, Raum Riga.
-
-TODO optional: eine Anekdote, in der ein Agent mehr getan hat als gedacht.
 :::
 
 # Risiken im Betrieb
@@ -463,7 +461,7 @@ Was passiert, wenn der Agent mehr darf
 ::: notes
 (ca. 2,5 Min.)
 
-Je mehr ein Agent kann, desto mehr kann schiefgehen. Ich zeige euch ein Modell, das das gut greifbar macht. Es stammt von Simon Willison und heißt Lethal Trifecta, die gefährliche Dreierkombination, Juni 2025.
+Je mehr ein Agent kann, desto mehr kann schiefgehen. Dazu gibt es ein einfaches Modell. Es stammt von Simon Willison und heißt Lethal Trifecta, die gefährliche Dreierkombination, Juni 2025.
 
 Drei Fähigkeiten: Der Agent hat Zugriff auf private Daten. Er liest Inhalte, die jemand anderes geschrieben hat, also E-Mails, Issues, Webseiten. Und er kann Daten nach außen schicken, per Mail, Pull Request oder HTTP. Jede einzelne Fähigkeit ist normal. Gefährlich wird es, wenn alle drei zusammenkommen.
 
@@ -480,11 +478,11 @@ Wichtig: Vendor-Filter, die solche Angriffe angeblich erkennen, sind laut Willis
 
 <div class="weg"><span>1 Die Bausteine</span><span>2 Wann brauche ich was?</span><span class="on">3 Risiken</span></div>
 
-- **Ein Bein streichen**: Ein Agent mit Zugriff auf das Postfach braucht kein freies Internet
-- **Rechte klein halten**: Ein Token pro Aufgabe, nur lesen, wo lesen reicht
-- **Schreibende Aktionen freigeben lassen**: Ein Mensch klickt, bevor etwas gesendet oder gelöscht wird
-- **MCP-Server wie Software behandeln**: Quelle prüfen, Version festlegen. Beispiel *postmark-mcp* (Sept. 2025): Eine Kopie des echten Servers auf npm hatte ab Version 1.0.16 eine Zeile mehr und schickte jede Mail als BCC an Fremde
-- **Zentral steuern und mitschreiben**: Bei uns regelt LiteLLM, wer welchen MCP-Server nutzen darf, und Langfuse zeichnet jeden Aufruf auf
+- Streicht eines der drei Beine. Wer Mails liest, muss nicht ins offene Internet
+- Gebt nur die Rechte, die die Aufgabe braucht: ein Token pro Aufgabe, nur lesend, wo lesen reicht
+- Lasst einen Menschen bestätigen, bevor etwas rausgeht oder gelöscht wird
+- Prüft MCP-Server wie jede andere Software. Beim *postmark-mcp* (Sept. 2025) schickte eine Kopie auf npm ab Version 1.0.16 jede Mail als BCC an Fremde
+- Steuert zentral und schreibt mit: Bei uns entscheidet LiteLLM, wer welchen MCP-Server nutzen darf, Langfuse zeichnet jeden Aufruf auf
 
 ::: notes
 (ca. 1,5 Min.)
@@ -539,7 +537,7 @@ Deshalb gebe ich ungern Skill-Empfehlungen. Mein Tipp: Wenn ihr dasselbe zum dri
 
 Trotzdem will ich nicht mit leeren Händen gehen. Ihr habt nach konkreten Vorschlägen gefragt, also hier meine.
 
-MCP-Server empfehle ich eher. Die sind für alle gleich, denn GitHub ist für alle GitHub. Ich nutze sie selbst für die Tools, mit denen ich ohnehin arbeite: GitHub, GitLab, Jira und Confluence. Der Gewinn ist groß: Der Agent kann ein Ticket lesen, den zugehörigen Code finden und einen Pull Request vorbereiten, ohne dass ich Texte hin- und herkopiere. Von GitHub gibt es dafür einen offiziellen Server, und Atlassian betreibt einen offiziellen Remote-Server für Jira und Confluence in der Cloud. TODO: GitLab-Variante nennen, wenn ihr sie zeigen wollt. Und denkt an die Dreierkombination von vorhin: Ticketinhalte kommen von Fremden, also Rechte klein halten.
+MCP-Server empfehle ich eher. Die sind für alle gleich, denn GitHub ist für alle GitHub. Ich nutze sie selbst für die Tools, mit denen ich ohnehin arbeite: GitHub, GitLab, Jira und Confluence. Der Gewinn ist groß: Der Agent kann ein Ticket lesen, den zugehörigen Code finden und einen Pull Request vorbereiten, ohne dass ich Texte hin- und herkopiere. Von GitHub gibt es dafür einen offiziellen Server, und Atlassian betreibt einen offiziellen Remote-Server für Jira und Confluence in der Cloud. Und denkt an die Dreierkombination von vorhin: Ticketinhalte kommen von Fremden, also Rechte klein halten.
 
 Bei Skills nenne ich drei, die ich selbst nutze und die nicht an meine Umgebung gebunden sind.
 

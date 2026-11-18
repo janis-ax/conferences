@@ -99,3 +99,9 @@
 .reveal .todo, .reveal .buzz span { border-radius: 4px; }
 .reveal .layer, .reveal .stack-side, .reveal .rung, .reveal .dec-res { border-radius: 8px; }
 .reveal .rung { overflow: hidden; }
+
+/* Etwas mehr Abstand zwischen Titel und Inhalt (nur Vortrag 2) */
+.reveal .slides section.slide.level2 { padding-top: 187px; }
+
+/* Titelfolie: Treppe der Leiter als Bild */
+.reveal .slides section#title-slide .titelbild { position: absolute; left: 790px; top: 200px; width: 440px; height: 360px; }

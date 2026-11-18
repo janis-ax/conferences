@@ -1,0 +1,19 @@
+<script>
+(function () {
+  var s = document.getElementById('title-slide');
+  if (!s) return;
+  var names = ['Skript', 'Prompt', 'Skill', 'Tool / MCP', 'Agent'];
+  var svg = '<svg viewBox="0 0 440 360" width="440" height="360" xmlns="http://www.w3.org/2000/svg" font-family="Open Sans, Segoe UI, Arial, sans-serif">';
+  for (var i = 0; i < 5; i++) {
+    var h = 70 + i * 55, x = i * 90, y = 340 - h, top = i === 4;
+    svg += '<rect x="' + x + '" y="' + y + '" width="80" height="' + h + '" rx="6" fill="' + (top ? '#FF6800' : '#DCEEF4') + '" stroke="' + (top ? '#FF6800' : '#AEC3E0') + '" stroke-width="2"/>';
+    svg += '<text x="' + (x + 40) + '" y="' + (y + 40) + '" text-anchor="middle" font-size="30" font-weight="700" fill="' + (top ? '#fff' : '#13253C') + '">' + i + '</text>';
+    svg += '<text x="' + (x + 40) + '" y="' + (y + 62) + '" text-anchor="middle" font-size="14" font-weight="600" fill="' + (top ? '#fff' : '#13253C') + '">' + names[i] + '</text>';
+  }
+  svg += '</svg>';
+  var d = document.createElement('div');
+  d.className = 'titelbild';
+  d.innerHTML = svg;
+  s.appendChild(d);
+})();
+</script>
